@@ -76,7 +76,11 @@ class PTManager {
 
     setupEventListeners() {
         // Tab navigation
-        document.querySelectorAll('.tab-btn').forEach(btn => {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(btn => {
+            if (!btn.hasAttribute('type')) {
+                btn.setAttribute('type', 'button');
+            }
             btn.addEventListener('click', (e) => {
                 const tab = e.currentTarget.dataset.tab;
                 this.switchTab(tab);
@@ -100,13 +104,27 @@ class PTManager {
         });
 
         // Modal close on outside click
-        document.querySelectorAll('.modal').forEach(modal => {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     modal.classList.remove('active');
                 }
             });
         });
+
+        if (!modals.length) {
+            console.warn('Nessuna modale trovata: controlla che il markup sia stato caricato.');
+        }
+    }
+
+    refreshAll() {
+        this.updateDashboard();
+        this.renderClients();
+        this.renderPayments();
+        this.renderPrograms();
+        this.renderReports();
+        this.checkNotifications();
     }
 
     refreshAll() {

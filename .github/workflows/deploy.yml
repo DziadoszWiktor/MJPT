@@ -21,20 +21,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare static bundle
-        run: |
-          rm -rf dist
-          mkdir -p dist
-          cp index.html style.css script.js manifest.webmanifest service-worker.js dist/
-          cp -R data dist/
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'dist'
+          path: '.'
 
   deploy:
     environment:

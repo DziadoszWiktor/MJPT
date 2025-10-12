@@ -316,6 +316,8 @@ class PTManager {
     }
 
     ensurePaymentsForClient(client) {
+        if (!client) return;
+
         const today = new Date();
         const startDate = new Date(client.startDate);
         const firstMonth = new Date(today.getFullYear(), today.getMonth(), 1);

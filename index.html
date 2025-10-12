@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PT Manager - Dashboard Personal Trainer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-dumbbell"></i> PT Manager</h1>
+                <div class="header-stats">
+                    <div class="stat-card">
+                        <span class="stat-label">Clienti Attivi</span>
+                        <span class="stat-value" id="activeClients">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Incasso Annuale</span>
+                        <span class="stat-value" id="yearlyIncome">€0</span>
+                    </div>
+                    <div class="stat-card warning" id="limitWarning" style="display: none;">
+                        <span class="stat-label">⚠️ Limite P.IVA</span>
+                        <span class="stat-value">Vicino ai €5.000</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="dashboard">
+                <i class="fas fa-chart-dashboard"></i> Dashboard
+            </button>
+            <button class="tab-btn" data-tab="clients">
+                <i class="fas fa-users"></i> Clienti
+            </button>
+            <button class="tab-btn" data-tab="payments">
+                <i class="fas fa-euro-sign"></i> Pagamenti
+            </button>
+            <button class="tab-btn" data-tab="programs">
+                <i class="fas fa-calendar-alt"></i> Programmi
+            </button>
+            <button class="tab-btn" data-tab="reports">
+                <i class="fas fa-chart-bar"></i> Resoconti
+            </button>
+        </nav>
+
+        <!-- Notifications -->
+        <div class="notifications" id="notifications"></div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="dashboard">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Scadenze Imminenti</h3>
+                    <div id="upcomingDeadlines" class="deadline-list"></div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-money-bill-wave"></i> Pagamenti in Sospeso</h3>
+                    <div id="pendingPayments" class="payment-list"></div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-tasks"></i> Controlli da Fare</h3>
+                    <div id="pendingChecks" class="check-list"></div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-chart-line"></i> Panoramica Mensile</h3>
+                    <div class="monthly-overview">
+                        <div class="overview-item">
+                            <span>Incasso Mese Corrente:</span>
+                            <span id="monthlyIncome">€0</span>
+                        </div>
+                        <div class="overview-item">
+                            <span>Nuovi Clienti:</span>
+                            <span id="newClientsMonth">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clients Tab -->
+        <div class="tab-content" id="clients">
+            <div class="section-header">
+                <h2>Gestione Clienti</h2>
+                <button class="btn btn-primary" onclick="openClientModal()">
+                    <i class="fas fa-plus"></i> Nuovo Cliente
+                </button>
+            </div>
+            <div class="clients-grid" id="clientsGrid"></div>
+        </div>
+
+        <!-- Payments Tab -->
+        <div class="tab-content" id="payments">
+            <div class="section-header">
+                <h2>Gestione Pagamenti</h2>
+                <div class="filters">
+                    <select id="paymentFilter">
+                        <option value="all">Tutti</option>
+                        <option value="paid">Pagati</option>
+                        <option value="pending">In Sospeso</option>
+                        <option value="overdue">In Ritardo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="payments-table" id="paymentsTable"></div>
+        </div>
+
+        <!-- Programs Tab -->
+        <div class="tab-content" id="programs">
+            <div class="section-header">
+                <h2>Programmi di Allenamento</h2>
+                <button class="btn btn-primary" onclick="openProgramModal()">
+                    <i class="fas fa-plus"></i> Nuovo Programma
+                </button>
+            </div>
+            <div class="programs-grid" id="programsGrid"></div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div class="tab-content" id="reports">
+            <div class="section-header">
+                <h2>Resoconti</h2>
+                <div class="report-controls">
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <i class="fas fa-download"></i> Esporta CSV
+                    </button>
+                    <input type="file" id="importFile" accept=".csv" style="display: none;" onchange="importData()">
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
+                        <i class="fas fa-upload"></i> Importa CSV
+                    </button>
+                </div>
+            </div>
+            <div class="reports-grid">
+                <div class="card">
+                    <h3>Resoconto Annuale</h3>
+                    <div id="yearlyReport" class="report-content"></div>
+                </div>
+                <div class="card">
+                    <h3>Resoconto Mensile</h3>
+                    <div id="monthlyReport" class="report-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Modal -->
+    <div class="modal" id="clientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="clientModalTitle">Nuovo Cliente</h3>
+                <button class="close-btn" onclick="closeClientModal()">&times;</button>
+            </div>
+            <form id="clientForm">
+                <div class="form-group">
+                    <label for="clientName">Nome Completo</label>
+                    <input type="text" id="clientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientEmail">Email</label>
+                    <input type="email" id="clientEmail">
+                </div>
+                <div class="form-group">
+                    <label for="clientPhone">Telefono</label>
+                    <input type="tel" id="clientPhone">
+                </div>
+                <div class="form-group">
+                    <label for="monthlyFee">Quota Mensile (€)</label>
+                    <input type="number" id="monthlyFee" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Data Inizio</label>
+                    <input type="date" id="startDate" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeClientModal()">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Program Modal -->
+    <div class="modal" id="programModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="programModalTitle">Nuovo Programma</h3>
+                <button class="close-btn" onclick="closeProgramModal()">&times;</button>
+            </div>
+            <form id="programForm">
+                <div class="form-group">
+                    <label for="programClient">Cliente</label>
+                    <select id="programClient" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="programName">Nome Programma</label>
+                    <input type="text" id="programName" required>
+                </div>
+                <div class="form-group">
+                    <label for="programWeeks">Durata (settimane)</label>
+                    <input type="number" id="programWeeks" min="1" max="52" required>
+                </div>
+                <div class="form-group">
+                    <label for="programStart">Data Inizio</label>
+                    <input type="date" id="programStart" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeProgramModal()">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva Programma</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

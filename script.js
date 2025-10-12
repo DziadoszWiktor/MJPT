@@ -83,44 +83,25 @@ class PTManager {
             }
             btn.addEventListener('click', (e) => {
                 const tab = e.currentTarget.dataset.tab;
-                if (tab) {
-                    this.switchTab(tab);
-                }
+                this.switchTab(tab);
             });
         });
 
-        if (!tabButtons.length) {
-            console.warn('Tab buttons non trovati, verifica il markup della navigazione.');
-        }
-
         // Forms
-        const clientForm = document.getElementById('clientForm');
-        if (clientForm) {
-            clientForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.saveClient();
-            });
-        } else {
-            console.warn('Form clienti non trovato, impossibile registrare il submit.');
-        }
+        document.getElementById('clientForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveClient();
+        });
 
-        const programForm = document.getElementById('programForm');
-        if (programForm) {
-            programForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.saveProgram();
-            });
-        } else {
-            console.warn('Form programmi non trovato, impossibile registrare il submit.');
-        }
+        document.getElementById('programForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveProgram();
+        });
 
         // Payment filter
-        const paymentFilter = document.getElementById('paymentFilter');
-        if (paymentFilter) {
-            paymentFilter.addEventListener('change', (e) => {
-                this.renderPayments(e.target.value);
-            });
-        }
+        document.getElementById('paymentFilter').addEventListener('change', (e) => {
+            this.renderPayments(e.target.value);
+        });
 
         // Modal close on outside click
         const modals = document.querySelectorAll('.modal');
@@ -135,6 +116,15 @@ class PTManager {
         if (!modals.length) {
             console.warn('Nessuna modale trovata: controlla che il markup sia stato caricato.');
         }
+    }
+
+    refreshAll() {
+        this.updateDashboard();
+        this.renderClients();
+        this.renderPayments();
+        this.renderPrograms();
+        this.renderReports();
+        this.checkNotifications();
     }
 
     refreshAll() {
@@ -344,8 +334,6 @@ class PTManager {
     }
 
     ensurePaymentsForClient(client) {
-        if (!client) return;
-
         const today = new Date();
         const startDate = new Date(client.startDate);
         const firstMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -372,6 +360,7 @@ class PTManager {
                 existing.amount = client.monthlyFee;
             }
         }
+    }
     }
 
     recordPayment(clientId, paymentId = null) {

@@ -1,0 +1,50 @@
+name: Deploy PT Manager
+
+on:
+  push:
+    branches:
+      - main
+      - work
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build static bundle
+        run: |
+          rm -rf dist
+          mkdir -p dist
+          cp index.html style.css script.js manifest.webmanifest service-worker.js dist/
+          if [ -d data ]; then
+            cp -R data dist/
+          fi
+          cp dist/index.html dist/404.html
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

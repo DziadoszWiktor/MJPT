@@ -16,15 +16,9 @@ class PTManager {
     }
 
     async init() {
-        try {
-            await this.loadData();
-        } catch (error) {
-            console.error('Errore durante l\'inizializzazione, i dati verranno ripristinati', error);
-            this.resetData();
-        }
+        await this.loadData();
         this.setupEventListeners();
         this.refreshAll();
-        this.switchTab(this.currentTab);
         this.isInitialized = true;
 
         // Auto-save periodico
@@ -32,20 +26,20 @@ class PTManager {
     }
 
     async loadData() {
-        const storedClients = this.safeParseStorage('pt_clients');
-        const storedPayments = this.safeParseStorage('pt_payments');
-        const storedPrograms = this.safeParseStorage('pt_programs');
-        const storedChecks = this.safeParseStorage('pt_checks');
+        const storedClients = localStorage.getItem('pt_clients');
+        const storedPayments = localStorage.getItem('pt_payments');
+        const storedPrograms = localStorage.getItem('pt_programs');
+        const storedChecks = localStorage.getItem('pt_checks');
 
-        if (Array.isArray(storedClients)) {
-            this.clients = storedClients;
+        if (storedClients) {
+            this.clients = JSON.parse(storedClients);
         } else {
             await this.loadClientsFromCSV();
         }
 
-        this.payments = Array.isArray(storedPayments) ? storedPayments : [];
-        this.programs = Array.isArray(storedPrograms) ? storedPrograms : [];
-        this.checks = Array.isArray(storedChecks) ? storedChecks : [];
+        this.payments = storedPayments ? JSON.parse(storedPayments) : [];
+        this.programs = storedPrograms ? JSON.parse(storedPrograms) : [];
+        this.checks = storedChecks ? JSON.parse(storedChecks) : [];
 
         this.ensurePaymentsForAllClients();
         this.updateCSVCache();
@@ -89,44 +83,25 @@ class PTManager {
             }
             btn.addEventListener('click', (e) => {
                 const tab = e.currentTarget.dataset.tab;
-                if (tab) {
-                    this.switchTab(tab);
-                }
+                this.switchTab(tab);
             });
         });
 
-        if (!tabButtons.length) {
-            console.warn('Tab buttons non trovati, verifica il markup della navigazione.');
-        }
-
         // Forms
-        const clientForm = document.getElementById('clientForm');
-        if (clientForm) {
-            clientForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.saveClient();
-            });
-        } else {
-            console.warn('Form clienti non trovato, impossibile registrare il submit.');
-        }
+        document.getElementById('clientForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveClient();
+        });
 
-        const programForm = document.getElementById('programForm');
-        if (programForm) {
-            programForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.saveProgram();
-            });
-        } else {
-            console.warn('Form programmi non trovato, impossibile registrare il submit.');
-        }
+        document.getElementById('programForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveProgram();
+        });
 
         // Payment filter
-        const paymentFilter = document.getElementById('paymentFilter');
-        if (paymentFilter) {
-            paymentFilter.addEventListener('change', (e) => {
-                this.renderPayments(e.target.value);
-            });
-        }
+        document.getElementById('paymentFilter').addEventListener('change', (e) => {
+            this.renderPayments(e.target.value);
+        });
 
         // Modal close on outside click
         const modals = document.querySelectorAll('.modal');
@@ -141,6 +116,15 @@ class PTManager {
         if (!modals.length) {
             console.warn('Nessuna modale trovata: controlla che il markup sia stato caricato.');
         }
+    }
+
+    refreshAll() {
+        this.updateDashboard();
+        this.renderClients();
+        this.renderPayments();
+        this.renderPrograms();
+        this.renderReports();
+        this.checkNotifications();
     }
 
     refreshAll() {
@@ -350,8 +334,6 @@ class PTManager {
     }
 
     ensurePaymentsForClient(client) {
-        if (!client) return;
-
         const today = new Date();
         const startDate = new Date(client.startDate);
         const firstMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -378,6 +360,7 @@ class PTManager {
                 existing.amount = client.monthlyFee;
             }
         }
+    }
     }
 
     recordPayment(clientId, paymentId = null) {
@@ -1053,29 +1036,6 @@ class PTManager {
 
         this.csvCache = this.buildCSV([headers, ...rows]);
         localStorage.setItem('pt_clients_csv', this.csvCache);
-    }
-
-    safeParseStorage(key) {
-        const raw = localStorage.getItem(key);
-        if (!raw) return null;
-        try {
-            return JSON.parse(raw);
-        } catch (error) {
-            console.warn(`Dati locali corrotti per ${key}, verranno ignorati`, error);
-            localStorage.removeItem(key);
-            return null;
-        }
-    }
-
-    resetData() {
-        this.clients = [];
-        this.payments = [];
-        this.programs = [];
-        this.checks = [];
-        ['pt_clients', 'pt_payments', 'pt_programs', 'pt_checks', 'pt_clients_csv'].forEach(key => {
-            localStorage.removeItem(key);
-        });
-        this.updateCSVCache();
     }
 
     exportData() {

@@ -31,13 +31,7 @@ Dashboard leggera per personal trainer pensata per la pubblicazione su GitHub Pa
 
 ## Deploy su GitHub Pages
 
-È incluso un workflow GitHub Actions (`.github/workflows/deploy.yml`) che crea un pacchetto statico nella cartella `dist` e lo pubblica automaticamente su GitHub Pages ad ogni push sui branch `main` o `work`. Dopo il primo deploy ricordati di abilitare GitHub Pages nelle impostazioni del repository puntando all'ambiente `github-pages` generato dal workflow.
-
-## Risoluzione dei problemi
-
-- **Le tab non cambiano se cliccate:** è probabile che il `localStorage` contenga dati corrotti. Il sistema ora li ignora automaticamente, rigenera la base dati dal CSV di progetto e riattiva le tab in modo esplicito all'avvio; in caso di problemi persistenti cancella manualmente i dati del sito dal browser o usa l'opzione "Svuota dati di navigazione".
-- **Vedo ancora la versione vecchia:** la nuova release aggiorna il service worker (`pt-manager-cache-v2`). Se l'interfaccia non si aggiorna esegui un hard refresh (Ctrl/Cmd+Shift+R) o rimuovi la PWA installata prima di riaprirla.
-- **Il deploy fallisce o restituisce 404:** assicurati che il workflow "Deploy PT Manager" completi sia il job `build` sia il job `deploy`. In caso contrario controlla i log del workflow su GitHub; puoi rilanciare il deploy con l'azione manuale `workflow_dispatch` dopo aver risolto eventuali errori.
+È incluso un workflow GitHub Actions (`.github/workflows/deploy.yml`) che pubblica automaticamente la cartella del progetto su GitHub Pages ad ogni push sul branch `main`.
 
 ## Struttura del progetto
 

@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#6b5ecf">
     <title>PT Manager - Dashboard Personal Trainer</title>
-    <meta name="description" content="Dashboard leggera per personal trainer con gestione clienti, pagamenti, programmi e reportistica in CSV." />
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" sizes="192x192" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAABiUlEQVR42u3TMQ0AAAjAMJRiALFIAhN89KiBJYvKHvgqRMAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwAAYQAQOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAYAAwABgADAAGAAOAAcAAGAAOAAYAAwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAbAACJgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAMAAYAA4ABwABgADAAGAAuLYTCBdxIL7vmAAAAAElFTkSuQmCC">
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <header class="header">
             <div class="header-content">
                 <h1><i class="fas fa-dumbbell"></i> PT Manager</h1>
@@ -33,45 +30,48 @@
             </div>
         </header>
 
+        <!-- Navigation -->
         <nav class="nav-tabs">
             <button class="tab-btn active" data-tab="dashboard">
-                <i class="fas fa-chart-line"></i> Dashboard
+                <i class="fas fa-chart-dashboard"></i> Dashboard
             </button>
-            <button type="button" class="tab-btn" data-tab="clients">
+            <button class="tab-btn" data-tab="clients">
                 <i class="fas fa-users"></i> Clienti
             </button>
-            <button type="button" class="tab-btn" data-tab="payments">
+            <button class="tab-btn" data-tab="payments">
                 <i class="fas fa-euro-sign"></i> Pagamenti
             </button>
-            <button type="button" class="tab-btn" data-tab="programs">
+            <button class="tab-btn" data-tab="programs">
                 <i class="fas fa-calendar-alt"></i> Programmi
             </button>
-            <button type="button" class="tab-btn" data-tab="reports">
+            <button class="tab-btn" data-tab="reports">
                 <i class="fas fa-chart-bar"></i> Resoconti
             </button>
         </nav>
 
+        <!-- Notifications -->
         <div class="notifications" id="notifications"></div>
 
+        <!-- Dashboard Tab -->
         <div class="tab-content active" id="dashboard">
             <div class="dashboard-grid">
                 <div class="card">
                     <h3><i class="fas fa-exclamation-triangle"></i> Scadenze Imminenti</h3>
                     <div id="upcomingDeadlines" class="deadline-list"></div>
                 </div>
-
+                
                 <div class="card">
                     <h3><i class="fas fa-money-bill-wave"></i> Pagamenti in Sospeso</h3>
                     <div id="pendingPayments" class="payment-list"></div>
                 </div>
-
+                
                 <div class="card">
                     <h3><i class="fas fa-tasks"></i> Controlli da Fare</h3>
                     <div id="pendingChecks" class="check-list"></div>
                 </div>
-
+                
                 <div class="card">
-                    <h3><i class="fas fa-chart-pie"></i> Panoramica Mensile</h3>
+                    <h3><i class="fas fa-chart-line"></i> Panoramica Mensile</h3>
                     <div class="monthly-overview">
                         <div class="overview-item">
                             <span>Incasso Mese Corrente:</span>
@@ -86,6 +86,7 @@
             </div>
         </div>
 
+        <!-- Clients Tab -->
         <div class="tab-content" id="clients">
             <div class="section-header">
                 <h2>Gestione Clienti</h2>
@@ -96,6 +97,7 @@
             <div class="clients-grid" id="clientsGrid"></div>
         </div>
 
+        <!-- Payments Tab -->
         <div class="tab-content" id="payments">
             <div class="section-header">
                 <h2>Gestione Pagamenti</h2>
@@ -111,6 +113,7 @@
             <div class="payments-table" id="paymentsTable"></div>
         </div>
 
+        <!-- Programs Tab -->
         <div class="tab-content" id="programs">
             <div class="section-header">
                 <h2>Programmi di Allenamento</h2>
@@ -121,6 +124,7 @@
             <div class="programs-grid" id="programsGrid"></div>
         </div>
 
+        <!-- Reports Tab -->
         <div class="tab-content" id="reports">
             <div class="section-header">
                 <h2>Resoconti</h2>
@@ -147,6 +151,7 @@
         </div>
     </div>
 
+    <!-- Client Modal -->
     <div class="modal" id="clientModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -182,6 +187,7 @@
         </div>
     </div>
 
+    <!-- Program Modal -->
     <div class="modal" id="programModal">
         <div class="modal-content">
             <div class="modal-header">

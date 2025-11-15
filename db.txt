@@ -1,0 +1,20 @@
+DROP TABLE IF EXISTS clients;
+
+CREATE TABLE clients (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name  VARCHAR(100) NOT NULL,
+    email VARCHAR(190) NOT NULL,
+    phone VARCHAR(50) NULL,
+    service_type ENUM('MENSILE','TRIMESTRALE') NOT NULL DEFAULT 'MENSILE',
+    service_price DECIMAL(10,2) NOT NULL DEFAULT 0,
+    program_start_date DATE NULL,
+    program_duration_weeks INT UNSIGNED NOT NULL DEFAULT 0,
+    notes TEXT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    last_payment_date DATE NULL,
+    next_payment_due_date DATE NULL,
+    check_required TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

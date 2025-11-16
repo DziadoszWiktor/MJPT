@@ -72,36 +72,117 @@ function convertServiceToSelect(c) {
 //  RENDER: DASHBOARD
 // -----------------------------
 function renderDashboard() {
-    const grid = document.getElementById("clientGrid");
-    const empty = document.getElementById("emptyState");
-    if (!grid || !empty) return;
+    const grid = document.getElementById('clientGrid');
+    const emptyState = document.getElementById('emptyState');
+    if (!grid || !emptyState) return;
 
-    grid.innerHTML = "";
+    const activeClients = clients.slice();
 
-    if (!clients.length) {
-        empty.style.display = "flex";
+    if (activeClients.length === 0) {
+        grid.innerHTML = '';
+        emptyState.style.display = 'flex';
         return;
     }
-    empty.style.display = "none";
 
-    clients.forEach(c => {
-        const weeksLeft = calcWeeksLeft(c);
-        const paymentStatus = calcPaymentStatus(c);
+    emptyState.style.display = 'none';
 
-        const div = document.createElement("div");
-        div.className = "client-card"; // stylujesz w style.css jak chcesz
+    grid.innerHTML = activeClients.map((client) => {
+        const weeksRemaining = calculateWeeksRemaining(client);
+        const payment = getPaymentStatus(client);
 
-        div.innerHTML = `
-            <h3>${c.first_name} ${c.last_name}</h3>
-            <p><strong>Email:</strong> ${c.email || "-"}</p>
-            <p><strong>Servizio:</strong> ${formatService(c)}</p>
-            <p><strong>Settimane rimanenti:</strong> ${weeksLeft}</p>
-            <p><strong>Pagamento:</strong> ${paymentStatus}</p>
-            <button class="quick-action-btn" data-id="${c.id}">Azioni Rapide</button>
+        let programText = '';
+        if (!client.start_date || !client.program_duration) {
+            programText = '—';
+        } else if (weeksRemaining <= 0) {
+            programText = 'PERIODO CONCLUSO';
+        } else {
+            programText = `${weeksRemaining} settimane rimanenti`;
+        }
+
+        let paymentBadgeClass = 'badge-danger';
+        if (payment.status === 'ok') paymentBadgeClass = 'badge-success';
+        else if (payment.status === 'due_soon') paymentBadgeClass = 'badge-warning';
+
+        return `
+            <div class="client-tile" data-id="${client.id}">
+                <div class="client-header">
+                    <div>
+                        <div class="client-name">${client.first_name} ${client.last_name}</div>
+                        <div class="client-email">${client.email || ''}</div>
+                    </div>
+                </div>
+
+                <div class="client-body">
+                    <div class="client-info">
+                        <div class="info-row">
+                            <span class="info-label">Servizio</span>
+                            <span class="info-value">${formatService(client)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Programmazione</span>
+                            <span class="info-value">${programText}</span>
+                        </div>
+                    </div>
+
+                    <div class="client-badges">
+                        <span class="badge ${client.is_active == 1 ? 'badge-success' : 'badge-danger'}">
+                            ${client.is_active == 1 ? '✓ ATTIVO' : '✗ NON ATTIVO'}
+                        </span>
+
+                        <span class="badge ${paymentBadgeClass}">
+                            ${payment.text}
+                        </span>
+
+                        <span class="badge ${client.check_required == 1 ? 'badge-warning' : 'badge-success'}">
+                            ${client.check_required == 1 ? '○ CHECK DA FARE' : '✓ CHECK FATTO'}
+                        </span>
+                    </div>
+
+                </div>
+            </div>
         `;
+    }).join('');
 
-        grid.appendChild(div);
-    });
+    updateHeaderStats();
+}
+
+function calculateWeeksRemaining(client) {
+    if (!client.start_date || !client.program_duration) return null;
+    const start = new Date(client.start_date);
+    const now = new Date();
+    const diffWeeks = Math.floor((now - start) / (1000 * 60 * 60 * 24 * 7));
+    return client.program_duration - diffWeeks;
+}
+
+function getPaymentStatus(client) {
+    // pole z bazy: next_payment_due_date
+    const dueStr = client.next_payment_due_date;
+
+    // brak ustawionej kolejnej płatności → traktujemy jako "w zawieszeniu"
+    if (!dueStr) {
+        return { text: "In Sospeso", status: "unknown" };
+    }
+
+    const now = new Date();
+    const due = new Date(dueStr); // "YYYY-MM-DD"
+    const diffDays = Math.floor((due - now) / (1000 * 60 * 60 * 24));
+
+    // zgodnie z Twoją logiką:
+    //  - In Regola  = >= 5 dni do terminu
+    //  - In Sospeso = 0–4 dni
+    //  - Scaduto    = po terminie
+    if (diffDays >= 5) {
+        return { text: "In Regola", status: "ok" };
+    }
+    if (diffDays >= 0) {
+        return { text: "In Sospeso", status: "due_soon" };
+    }
+    return { text: "Scaduto", status: "late" };
+}
+
+
+function getClientStatus(client) {
+    return client.active ? "ATTIVO" : "NON ATTIVO";
 }
 
 // -----------------------------
@@ -204,7 +285,7 @@ function updateHeaderStats() {
 }
 
 // -----------------------------
-//  ZAŁADOWANIE DANYCH
+// 🔥 POPRAWIONE — ŁADUJE DANE TYLKO RENDER SEKCJI AKTYWNEJ
 // -----------------------------
 async function loadClients() {
     try {
@@ -215,10 +296,140 @@ async function loadClients() {
         clients = [];
     }
 
-    renderDashboard();
-    renderClientList();
-    renderFinance();
     updateHeaderStats();
+    renderCurrentSection(); // zamiast renderować WSZYSTKO
+}
+
+// 🔥 decyduje co renderować
+function renderCurrentSection() {
+    const activeTab = document.querySelector(".nav-tab.active");
+    if (!activeTab) return;
+
+    const section = activeTab.dataset.section;
+
+    if (section === "dashboard") renderDashboard();
+    if (section === "clients") renderClientList();
+    if (section === "finance") renderFinance();
+}
+
+// =====================================================
+//  NAVIGAZIONE / SEARCH / THEME / EXPORT
+// =====================================================
+function setupNav() {
+    const tabs = document.querySelectorAll(".nav-tab");
+    const sections = document.querySelectorAll(".content-section");
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            const target = tab.dataset.section;
+
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+
+            sections.forEach(sec => {
+                sec.classList.toggle("active", sec.id === target);
+            });
+
+            renderCurrentSection(); // 🔥 render po zmianie zakładki
+        });
+    });
+}
+
+function setupSearch() {
+    const input = document.getElementById("searchInput");
+    if (!input) return;
+
+    input.addEventListener("input", () => {
+        const q = input.value.toLowerCase();
+
+        document.querySelectorAll("#clientGrid .client-tile").forEach(card => {
+            card.style.display = card.innerText.toLowerCase().includes(q) ? "block" : "none";
+        });
+
+        document.querySelectorAll("#clientList .client-list-item").forEach(item => {
+            item.style.display = item.innerText.toLowerCase().includes(q) ? "flex" : "none";
+        });
+    });
+}
+
+function setupThemeToggle() {
+    const btn = document.getElementById("themeToggle");
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+    });
+}
+
+function setupExport() {
+    const btn = document.getElementById("exportDataBtn");
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+        if (!clients.length) {
+            alert("Nessun dato da esportare.");
+            return;
+        }
+
+        const rows = [];
+        rows.push([
+            "ID", "Nome", "Cognome", "Email",
+            "Tipo Servizio", "Prezzo", "Data Inizio", "Durata (settimane)", "Note"
+        ]);
+
+        clients.forEach(c => {
+            rows.push([
+                c.id,
+                c.first_name,
+                c.last_name,
+                c.email || "",
+                c.service_type,
+                c.service_price,
+                c.program_start_date || "",
+                c.program_duration_weeks || "",
+                (c.notes || "").replace(/\r?\n/g, " ")
+            ]);
+        });
+
+        const csv = rows.map(r =>
+            r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(",")
+        ).join("\n");
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "pt-manager-clients.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+}
+
+function setupGlobalClickHandlers() {
+    document.body.addEventListener("click", async (e) => {
+        const t = e.target;
+
+        if (t.classList.contains("edit-btn")) {
+            const id = t.dataset.id;
+            const client = clients.find(c => String(c.id) === String(id));
+            if (client) openClientModal(client);
+        }
+
+        if (t.classList.contains("delete-btn")) {
+            const id = t.dataset.id;
+            if (!confirm("Sei sicuro di voler eliminare questo cliente?")) return;
+            await apiPost("delete_client", { id });
+            loadClients();
+        }
+    });
+
+    window.addEventListener("click", (e) => {
+        if (e.target && e.target.id === "quickActionModal") {
+            closeQuickModal();
+        }
+    });
 }
 
 // =====================================================
@@ -309,179 +520,43 @@ function setupModalHandlers() {
     }
 }
 
-// =====================================================
-//  QUICK ACTIONS MODAL
-// =====================================================
-function openQuickActions(clientId) {
-    selectedClientId = clientId;
-    const modal = document.getElementById("quickActionModal");
-    const buttons = document.getElementById("quickActionButtons");
-    if (!modal || !buttons) return;
+// 🔥 obsługa kliknięcia badge w dashboardzie
+document.body.addEventListener("click", async (e) => {
+    const el = e.target;
+    if (!el.classList.contains("badge")) return;
 
-    modal.style.display = "flex";
+    const tile = el.closest(".client-tile");
+    if (!tile) return;
 
-    buttons.innerHTML = `
-        <button class="quick-btn" id="qaToggleActive">Attiva / Disattiva</button>
-        <button class="quick-btn" id="qaMarkPayment">Segna Pagamento</button>
-        <button class="quick-btn" id="qaToggleCheck">Richiedi Check Foto</button>
-    `;
+    const id = tile.dataset.id;
 
-    const qaToggleActive = document.getElementById("qaToggleActive");
-    const qaMarkPayment = document.getElementById("qaMarkPayment");
-    const qaToggleCheck = document.getElementById("qaToggleCheck");
-
-    if (qaToggleActive) {
-        qaToggleActive.onclick = async () => {
-            await apiPost("quick_action", { id: selectedClientId, type: "toggle_active" });
-            closeQuickModal();
-        };
+    // aktywność
+    if (el.textContent.includes("ATTIVO") || el.textContent.includes("NON ATTIVO")) {
+        await apiPost("quick_action", { id, type: "toggle_active" });
+        loadClients();
+        return;
     }
 
-    if (qaMarkPayment) {
-        qaMarkPayment.onclick = async () => {
-            await apiPost("quick_action", { id: selectedClientId, type: "mark_payment_done" });
-            closeQuickModal();
-        };
+    // płatność
+    if (
+        el.textContent.includes("Regola") ||
+        el.textContent.includes("Sospeso") ||
+        el.textContent.includes("Scaduto")
+    ) {
+        await apiPost("quick_action", { id, type: "mark_payment_done" });
+        loadClients();
+        return;
     }
 
-    if (qaToggleCheck) {
-        qaToggleCheck.onclick = async () => {
-            await apiPost("quick_action", { id: selectedClientId, type: "toggle_check_required" });
-            closeQuickModal();
-        };
+    // check
+    if (el.textContent.includes("CHECK")) {
+        await apiPost("quick_action", { id, type: "toggle_check_required" });
+        loadClients();
+        return;
     }
-}
+});
 
-function closeQuickModal() {
-    const modal = document.getElementById("quickActionModal");
-    if (modal) modal.style.display = "none";
-    loadClients();
-}
 
-// =====================================================
-//  NAVIGAZIONE / SEARCH / THEME / EXPORT
-// =====================================================
-function setupNav() {
-    const tabs = document.querySelectorAll(".nav-tab");
-    const sections = document.querySelectorAll(".content-section");
-
-    tabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-            const target = tab.dataset.section;
-
-            tabs.forEach(t => t.classList.remove("active"));
-            tab.classList.add("active");
-
-            sections.forEach(sec => {
-                if (sec.id === target) sec.classList.add("active");
-                else sec.classList.remove("active");
-            });
-        });
-    });
-}
-
-function setupSearch() {
-    const input = document.getElementById("searchInput");
-    if (!input) return;
-
-    input.addEventListener("input", () => {
-        const q = input.value.toLowerCase();
-
-        document.querySelectorAll("#clientGrid .client-card").forEach(card => {
-            card.style.display = card.innerText.toLowerCase().includes(q) ? "block" : "none";
-        });
-
-        document.querySelectorAll("#clientList .client-list-item").forEach(item => {
-            item.style.display = item.innerText.toLowerCase().includes(q) ? "flex" : "none";
-        });
-    });
-}
-
-function setupThemeToggle() {
-    const btn = document.getElementById("themeToggle");
-    if (!btn) return;
-
-    btn.addEventListener("click", () => {
-        document.body.classList.toggle("dark");
-    });
-}
-
-function setupExport() {
-    const btn = document.getElementById("exportDataBtn");
-    if (!btn) return;
-
-    btn.addEventListener("click", () => {
-        if (!clients.length) {
-            alert("Nessun dato da esportare.");
-            return;
-        }
-
-        const rows = [];
-        rows.push([
-            "ID", "Nome", "Cognome", "Email",
-            "Tipo Servizio", "Prezzo", "Data Inizio", "Durata (settimane)", "Note"
-        ]);
-
-        clients.forEach(c => {
-            rows.push([
-                c.id,
-                c.first_name,
-                c.last_name,
-                c.email || "",
-                c.service_type,
-                c.service_price,
-                c.program_start_date || "",
-                c.program_duration_weeks || "",
-                (c.notes || "").replace(/\r?\n/g, " ")
-            ]);
-        });
-
-        const csv = rows.map(r =>
-            r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(",")
-        ).join("\n");
-
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "pt-manager-clients.csv";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    });
-}
-
-// global delegacja klików (edit / delete / quick)
-function setupGlobalClickHandlers() {
-    document.body.addEventListener("click", async (e) => {
-        const t = e.target;
-
-        if (t.classList.contains("edit-btn")) {
-            const id = t.dataset.id;
-            const client = clients.find(c => String(c.id) === String(id));
-            if (client) openClientModal(client);
-        }
-
-        if (t.classList.contains("delete-btn")) {
-            const id = t.dataset.id;
-            if (!confirm("Sei sicuro di voler eliminare questo cliente?")) return;
-            await apiPost("delete_client", { id });
-            loadClients();
-        }
-
-        if (t.classList.contains("quick-action-btn")) {
-            const id = t.dataset.id;
-            openQuickActions(id);
-        }
-    });
-
-    window.addEventListener("click", (e) => {
-        if (e.target && e.target.id === "quickActionModal") {
-            closeQuickModal();
-        }
-    });
-}
 
 // =====================================================
 //  INIT

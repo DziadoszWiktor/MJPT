@@ -1,5 +1,4 @@
 <?php
-// API JSON dla PT Manager – BEZ HTML
 
 ob_clean();
 header("Content-Type: application/json; charset=utf-8");

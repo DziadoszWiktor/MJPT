@@ -995,5 +995,5 @@ body.finance-active .search-bar {
     width: 34px;
     height: 34px;
     display: block;
-    filter: invert(1);
+    filter: brightness(0) invert(1);
 }

@@ -9,6 +9,8 @@ import { initTheme } from './theme.js';
 function renderCurrentSection() {
     const section = getActiveSectionId();
 
+    document.body.classList.toggle('finance-active', section === 'finance');
+    
     if (section === 'dashboard') renderDashboard();
     if (section === 'clients') renderClientList();
     if (section === 'finance') renderFinance();

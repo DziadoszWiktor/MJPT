@@ -974,3 +974,7 @@ form {
     background: #b36b0019;
     color: #b36b00;
 }
+
+body.finance-active .search-bar {
+    display: none;
+}

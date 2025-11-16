@@ -19,16 +19,6 @@
     --radius-sm: 8px;
 }
 
-[data-theme="dark"] {
-    --bg-primary: #111827;
-    --bg-secondary: #1f2937;
-    --bg-tertiary: #374151;
-    --text-primary: #f9fafb;
-    --text-secondary: #d1d5db;
-    --text-tertiary: #9ca3af;
-    --border-color: #374151;
-}
-
 * {
     margin: 0;
     padding: 0;
@@ -99,14 +89,6 @@ body {
 
 .theme-toggle .moon-icon {
     display: none;
-}
-
-[data-theme="dark"] .theme-toggle .sun-icon {
-    display: none;
-}
-
-[data-theme="dark"] .theme-toggle .moon-icon {
-    display: block;
 }
 
 .header-stats {
@@ -401,19 +383,9 @@ body {
     color: #065f46;
 }
 
-[data-theme="dark"] .badge-success {
-    background: #064e3b;
-    color: #6ee7b7;
-}
-
 .badge-warning {
     background: #fef3c7;
     color: #92400e;
-}
-
-[data-theme="dark"] .badge-warning {
-    background: #78350f;
-    color: #fcd34d;
 }
 
 .badge-danger {
@@ -421,19 +393,9 @@ body {
     color: #991b1b;
 }
 
-[data-theme="dark"] .badge-danger {
-    background: #7f1d1d;
-    color: #fca5a5;
-}
-
 .badge-info {
     background: #dbeafe;
     color: #1e40af;
-}
-
-[data-theme="dark"] .badge-info {
-    background: #1e3a8a;
-    color: #93c5fd;
 }
 
 /* Client List */

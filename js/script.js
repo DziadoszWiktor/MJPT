@@ -4,9 +4,8 @@ import { renderClientList, setupClientFormHandlers, setupClientListHandlers } fr
 import { renderFinance, setupExport } from './finance.js';
 import { updateHeaderStats } from './header.js';
 import { setupNav, setupSearch, getActiveSectionId } from './navigation.js';
-import { setupThemeToggle } from './theme.js';
+import { initTheme } from './theme.js';
 
-// Renderuje aktualnie wybraną sekcję na podstawie active tab
 function renderCurrentSection() {
     const section = getActiveSectionId();
 
@@ -15,7 +14,6 @@ function renderCurrentSection() {
     if (section === 'finance') renderFinance();
 }
 
-// Ładuje klientów z API i odświeża UI
 async function refreshAll() {
     await loadClientsFromApi();
     updateHeaderStats();
@@ -27,12 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCurrentSection();
     });
     setupSearch();
-    setupThemeToggle();
-
     setupClientFormHandlers(refreshAll);
     setupClientListHandlers(refreshAll);
     setupDashboardQuickActions(refreshAll);
     setupExport();
-
     refreshAll();
+    initTheme();
 });

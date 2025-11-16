@@ -1,0 +1,156 @@
+body.dark {
+    background-color: #0f172a;
+    color: #e5e7eb;
+}
+
+body.dark *,
+body.dark *::before,
+body.dark *::after {
+    transition: none !important;
+}
+
+/* HEADER + NAVBAR */
+body.dark .header,
+body.dark .nav-bar {
+    background-color: #0f172a;
+    border-bottom: 1px solid #1f2937;
+}
+
+body.dark .main-content,
+body.dark .content-section {
+    background-color: #0f172a;
+    border: none;
+}
+
+body.dark .stat-card,
+body.dark .client-tile,
+body.dark .finance-card,
+body.dark .modal-content,
+body.dark .client-list-item,
+body.dark .finance-table-container {
+    background-color: #111827;
+    border: 1px solid #1f2937;
+    color: #e5e7eb;
+}
+
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark .section-header h2,
+body.dark .client-name {
+    color: #f9fafb;
+}
+
+body.dark p,
+body.dark label,
+body.dark .stat-label,
+body.dark .stat-value,
+body.dark .client-email,
+body.dark .info-label,
+body.dark .info-value,
+body.dark .finance-value {
+    color: #e5e7eb;
+}
+
+/* SEARCH BAR */
+body.dark .search-bar {
+    background-color: #111827;
+    border: 1px solid #4b5563;
+}
+
+body.dark .search-bar input {
+    background-color: transparent;
+    border: none;
+    color: #f9fafb;
+}
+
+body.dark .search-bar input::placeholder {
+    color: #9ca3af;
+}
+
+body.dark .finance-table {
+    color: #e5e7eb;
+}
+
+body.dark .finance-table th,
+body.dark .finance-table td {
+    border-color: #1f2937;
+}
+
+body.dark .finance-table thead {
+    background-color: #111827;
+}
+
+body.dark .finance-table th {
+    color: #f9fafb;
+    font-weight: 600;
+}
+
+body.dark .finance-table tbody tr {
+    background-color: #020617;
+}
+
+body.dark .finance-table tbody tr:nth-child(even) {
+    background-color: #0b1120;
+}
+
+body.dark .finance-table td {
+    color: #e5e7eb;
+}
+
+body.dark input,
+body.dark select,
+body.dark textarea {
+    background-color: #111827;
+    border: 1px solid #4b5563;
+    color: #f9fafb;
+}
+
+body.dark input::placeholder,
+body.dark textarea::placeholder {
+    color: #9ca3af;
+}
+
+body.dark input[type="date"] {
+    color-scheme: dark;
+}
+
+body.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
+    background-size: 18px 18px;
+    color: transparent; 
+    opacity: 1;
+    cursor: pointer;
+}
+
+body.dark .btn-primary {
+    background-color: #4f46e5;
+    color: #ffffff;
+}
+
+body.dark .btn-primary:hover {
+    background-color: #6366f1;
+}
+
+body.dark .btn-secondary {
+    background-color: #111827;
+    color: #e5e7eb;
+    border: 1px solid #4b5563;
+}
+
+body.dark .btn-secondary:hover {
+    background-color: #1f2937;
+}
+
+body.dark .modal,
+body.dark .quick-action-modal {
+    background-color: rgba(15, 23, 42, 0.85);
+}
+
+body.dark .modal-content {
+    border-color: #1f2937;
+}
+
+body.dark .modal-header {
+    border-bottom: 1px solid #1f2937;
+}

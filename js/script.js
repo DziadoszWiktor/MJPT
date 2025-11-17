@@ -16,10 +16,27 @@ function renderCurrentSection() {
     if (section === 'finance') renderFinance();
 }
 
+function showDashboardLoader() {
+  const loader = document.getElementById('dashboardLoader');
+  if (loader) loader.classList.add('active');
+}
+
+function hideDashboardLoader() {
+  const loader = document.getElementById('dashboardLoader');
+  if (loader) loader.classList.remove('active');
+}
+
 async function refreshAll() {
-    await loadClientsFromApi();
-    updateHeaderStats();
-    renderCurrentSection();
+    showDashboardLoader();
+    try {
+        await loadClientsFromApi();
+        updateHeaderStats();
+        hideDashboardLoader();
+        renderCurrentSection();
+    } catch (e) {
+        console.error('Errore di caricamento clienti:', e);
+        hideDashboardLoader();
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

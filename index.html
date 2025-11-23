@@ -269,6 +269,37 @@
             </div>
         </div>
     </div>
+    
+    <!-- Delete Client Modal -->
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h2>Conferma eliminazione</h2>
+                <button class="modal-close" id="closeDeleteModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>
+                    Sei sicuro di voler eliminare il cliente
+                    <strong id="deleteClientName"></strong>?
+                </p>
+            </div>
+
+            <div class="form-actions delete-modal-actions">
+                <button type="button" class="btn-secondary" id="cancelDeleteBtn">
+                    Annulla
+                </button>
+                <button type="button" class="btn-danger" id="confirmDeleteBtn">
+                    Elimina
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="./js/script.js"></script>
 </body>

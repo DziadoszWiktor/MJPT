@@ -2,6 +2,8 @@ import { getClients } from './state.js';
 import { formatService, parseService, convertServiceToSelect } from './utils.js';
 import { apiPost } from './api.js';
 
+let deleteCandidateId = null;
+
 export function renderClientList() {
     const list = document.getElementById('clientList');
     if (!list) return;
@@ -24,9 +26,9 @@ export function renderClientList() {
                 </button>
                 <button class="btn-icon delete-btn" data-id="${c.id}" aria-label="Elimina cliente">
                     <svg xmlns="http://www.w3.org/2000/svg"
-                        width="24" height="24" viewBox="0 0 24 24">
+                        width="26" height="26" viewBox="0 0 24 24">
                         <g fill="none" stroke="#ffffff" stroke-width="2"
-                           stroke-linecap="round" stroke-linejoin="round">
+                            stroke-linecap="round" stroke-linejoin="round">
                             <path d="M4 7h16" />
                             <path d="M10 11v6" />
                             <path d="M14 11v6" />
@@ -80,7 +82,27 @@ function closeClientModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// Handlery do formularza (add / edit)
+function openDeleteModal(client) {
+    const modal = document.getElementById('deleteConfirmModal');
+    const nameEl = document.getElementById('deleteClientName');
+    if (!modal) return;
+
+    deleteCandidateId = client.id;
+    if (nameEl) {
+        nameEl.textContent = `${client.first_name} ${client.last_name}`;
+    }
+
+    modal.style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    deleteCandidateId = null;
+}
+
 export function setupClientFormHandlers(onAfterSave) {
     const btnAdd1 = document.getElementById('addClientBtn');
     const btnAdd2 = document.getElementById('addClientBtn2');
@@ -148,13 +170,42 @@ export function setupClientListHandlers(onAfterChange) {
         // DELETE
         if (deleteBtn) {
             const id = deleteBtn.dataset.id;
-            if (!confirm('Sei sicuro di voler eliminare questo cliente?')) return;
+            const clients = getClients();
+            const client = clients.find(c => String(c.id) === String(id));
+            if (client) openDeleteModal(client);
+            return;
+        }
+    });
 
-            await apiPost('delete_client', { id });
+    const cancelBtn = document.getElementById('cancelDeleteBtn');
+    const closeBtn = document.getElementById('closeDeleteModal');
+    const modal = document.getElementById('deleteConfirmModal');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+
+    if (cancelBtn) cancelBtn.addEventListener('click', closeDeleteModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeDeleteModal);
+
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeDeleteModal();
+            }
+        });
+    }
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', async () => {
+            if (!deleteCandidateId) {
+                closeDeleteModal();
+                return;
+            }
+
+            await apiPost('delete_client', { id: deleteCandidateId });
+            closeDeleteModal();
 
             if (typeof onAfterChange === 'function') {
                 onAfterChange();
             }
-        }
-    });
+        });
+    }
 }

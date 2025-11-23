@@ -154,3 +154,19 @@ body.dark .modal-content {
 body.dark .modal-header {
     border-bottom: 1px solid #1f2937;
 }
+
+.theme-toggle .sun-icon {
+    display: block;
+}
+
+.theme-toggle .moon-icon {
+    display: none;
+}
+
+body.dark .theme-toggle .sun-icon {
+    display: none;
+}
+
+body.dark .theme-toggle .moon-icon {
+    display: block;
+}

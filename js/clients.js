@@ -19,8 +19,22 @@ export function renderClientList() {
                 ${formatService(c)}
             </div>
             <div class="client-list-actions">
-                <button class="btn-small edit-btn" data-id="${c.id}">Modifica</button>
-                <button class="btn-small delete-btn" data-id="${c.id}">Elimina</button>
+                <button class="btn-primary btn-edit edit-btn" data-id="${c.id}">
+                    Modifica
+                </button>
+                <button class="btn-icon delete-btn" data-id="${c.id}" aria-label="Elimina cliente">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        width="24" height="24" viewBox="0 0 24 24">
+                        <g fill="none" stroke="#ffffff" stroke-width="2"
+                           stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 7h16" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M6 7l1 11a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-11" />
+                            <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                        </g>
+                    </svg>
+                </button>
             </div>
         `;
 
@@ -119,18 +133,23 @@ export function setupClientFormHandlers(onAfterSave) {
 
 export function setupClientListHandlers(onAfterChange) {
     document.body.addEventListener('click', async (e) => {
-        const t = e.target;
+        const editBtn = e.target.closest('.edit-btn');
+        const deleteBtn = e.target.closest('.delete-btn');
 
-        if (t.classList.contains('edit-btn')) {
-            const id = t.dataset.id;
+        // EDIT
+        if (editBtn) {
+            const id = editBtn.dataset.id;
             const clients = getClients();
             const client = clients.find(c => String(c.id) === String(id));
             if (client) openClientModal(client);
+            return;
         }
 
-        if (t.classList.contains('delete-btn')) {
-            const id = t.dataset.id;
+        // DELETE
+        if (deleteBtn) {
+            const id = deleteBtn.dataset.id;
             if (!confirm('Sei sicuro di voler eliminare questo cliente?')) return;
+
             await apiPost('delete_client', { id });
 
             if (typeof onAfterChange === 'function') {

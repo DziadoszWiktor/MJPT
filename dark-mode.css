@@ -170,3 +170,11 @@ body.dark .theme-toggle .sun-icon {
 body.dark .theme-toggle .moon-icon {
     display: block;
 }
+
+body.dark .btn-icon {
+    background-color: #ef4444;
+}
+
+body.dark .btn-icon:hover {
+    background-color: #f97373;
+}

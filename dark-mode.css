@@ -178,3 +178,15 @@ body.dark .btn-icon {
 body.dark .btn-icon:hover {
     background-color: #f97373;
 }
+
+body.dark .client-list-name,
+body.dark .client-list-note-label,
+body.dark .client-note-label {
+    color: #f9fafb !important;
+}
+
+body.dark .client-list-service,
+body.dark .client-list-note-text,
+body.dark .client-note-value {
+    color: #e5e7eb !important;
+}

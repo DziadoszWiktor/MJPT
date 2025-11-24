@@ -1128,3 +1128,28 @@ body.dark .dashboard-loader .cube {
     justify-content: space-between;
     width: 100%;                 
 }
+
+.client-list-main {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    width: 100%;
+}
+
+.client-list-text {
+    justify-self: start;
+}
+
+.client-list-note {
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.client-list-spacer {
+    display: none;
+}
+
+.client-note-label {
+    font-weight: 700;
+}

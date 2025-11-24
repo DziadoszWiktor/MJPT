@@ -14,11 +14,27 @@ export function renderClientList() {
     clients.forEach(c => {
         const div = document.createElement('div');
         div.className = 'client-list-item';
+        const rawNote = (c.notes || '').trim();
+        const notePreview = rawNote
+            ? (rawNote.length > 30 ? rawNote.slice(0, 9) + '…' : rawNote)
+            : 'Nessuna nota';
 
         div.innerHTML = `
-            <div class="client-list-text">
-                <strong>${c.first_name} ${c.last_name}</strong><br>
-                ${formatService(c)}
+            <div class="client-list-main">
+                <div class="client-list-text">
+                    <strong class="client-list-name">
+                        ${c.first_name} ${c.last_name}
+                    </strong>
+                    <div class="client-list-service">
+                        ${formatService(c)}
+                    </div>
+                </div>
+                <div class="client-list-spacer"></div>
+
+                <div class="client-list-note">
+                    <div class="client-note-label">Note:</div>
+                    <div class="client-note-value">${notePreview}</div>
+                </div>
             </div>
             <div class="client-list-actions">
                 <button class="btn-primary btn-edit edit-btn" data-id="${c.id}">

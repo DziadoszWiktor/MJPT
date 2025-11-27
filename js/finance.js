@@ -5,6 +5,7 @@ export function renderFinance() {
     const tbody = document.getElementById('financeTableBody');
     const annual = document.getElementById('totalAnnualRevenue');
     const active = document.getElementById('financeActiveClients');
+    const totalClientsEl = document.getElementById('financeTotalClients');
     const monthly = document.getElementById('monthlyAverage');
     const progress = document.getElementById('revenueProgress');
     const percentLabel = document.getElementById('revenuePercentage');
@@ -35,8 +36,12 @@ export function renderFinance() {
         tbody.appendChild(tr);
     });
 
+    const activeCount = clients.filter(c => Number(c.is_active) === 1).length;
+    const totalCount = clients.length;
+
     if (annual) annual.innerText = '€' + totalYear;
-    if (active) active.innerText = clients.length;
+    if (active) active.innerText = activeCount;     
+    if (totalClientsEl) totalClientsEl.innerText = totalCount;
     if (monthly) monthly.innerText = '€' + totalMonthly;
 
     if (progress && percentLabel) {

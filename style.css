@@ -1074,7 +1074,7 @@ body.dark .dashboard-loader .cube {
     height: 48px;
     border-radius: 10px;
     border: none;
-    background-color: #dc2626;
+    background-color: #b42b2b;
     cursor: pointer;
     transition:
         background-color 0.15s ease,
@@ -1098,15 +1098,9 @@ body.dark .dashboard-loader .cube {
     justify-content: center;
     gap: 0.5rem;
     border: none;
-    background: #dc2626;
+    background: #b42b2b;
     color: #ffffff;
     transition: all 0.2s ease;
-}
-
-.btn-danger:hover {
-    background: #b91c1c;
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
 }
 
 #deleteConfirmModal .modal-body {

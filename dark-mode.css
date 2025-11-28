@@ -52,6 +52,10 @@ body.dark .finance-value {
     color: #e5e7eb;
 }
 
+.notification-card .stat-value {
+    color: #f59e0b !important;
+}
+
 /* SEARCH BAR */
 body.dark .search-bar {
     background-color: #111827;
@@ -172,11 +176,7 @@ body.dark .theme-toggle .moon-icon {
 }
 
 body.dark .btn-icon {
-    background-color: #ef4444;
-}
-
-body.dark .btn-icon:hover {
-    background-color: #f97373;
+    background-color: #b42b2b;
 }
 
 body.dark .client-list-name,

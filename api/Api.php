@@ -8,6 +8,8 @@ require $dir . '/ClientListHandler.php';
 require $dir . '/ClientSaveHandler.php';
 require $dir . '/ClientDeleteHandler.php';
 require $dir . '/ClientQuickActionHandler.php';
+require $dir . '/ClientChecksHandler.php';
+require $dir . '/ClientCheckDeleteHandler.php';
 require $dir . '/FallbackHandler.php';
 
 $config = require $dir . '/config.local.php';
@@ -57,6 +59,14 @@ switch ($action) {
         (new ClientQuickActionHandler($pdo))->handle();
         break;
 
+    case 'client_checks':
+        (new ClientChecksHandler($pdo))->handle();
+        break;
+
+    case 'delete_client_check':
+        (new ClientCheckDeleteHandler($pdo))->handle();
+        break;
+        
     default:
         (new FallbackHandler())->handle($action);
         break;

@@ -1,5 +1,5 @@
 import { getClients } from './state.js';
-import { formatService } from './utils.js';
+import { formatService, formatServiceFinances } from './utils.js';
 
 export function renderFinance() {
     const tbody = document.getElementById('financeTableBody');
@@ -29,7 +29,7 @@ export function renderFinance() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>${c.first_name} ${c.last_name}</td>
-            <td>${formatService(c)}</td>
+            <td>${formatServiceFinances(c)}</td>
             <td>€${c.service_price}</td>
             <td>€${annualIncome}</td>
         `;

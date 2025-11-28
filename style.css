@@ -367,6 +367,15 @@ body {
     margin-top: 1.25rem;
 }
 
+.client-badges .badge {
+    display: flex;                
+    align-items: center;
+    justify-content: center;
+    min-height: 58px;           
+    padding: 0.4rem 1.1rem;
+    text-align: center;
+}
+
 .badge {
     width: 100%;
     text-align: center;
@@ -1154,4 +1163,56 @@ body.dark .dashboard-loader .cube {
 
 .client-note-label {
     font-weight: 700;
+}
+
+.client-checks-container {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.client-checks-block h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+}
+
+.client-checks-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.client-checks-table th,
+.client-checks-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.client-checks-loading,
+.client-checks-empty,
+.client-checks-error {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.client-checks-actions {
+    text-align: right;
+    width: 1%;
+    white-space: nowrap;
+}
+
+.btn-icon-small {
+    background-color: #b42b2b;
+    border: none;
+    border-radius: 10px;
+    padding: 6px 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon-small:hover {
+    background-color: #8f2222;
 }

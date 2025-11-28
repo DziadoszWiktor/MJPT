@@ -5,8 +5,13 @@ export function formatService(c) {
     return `Trimestrale (€${c.service_price})`;
 }
 
-// Pozostało po starej logice – używamy poprawnych pól z backendu:
-// program_start_date, program_duration_weeks
+export function formatServiceFinances(c) {
+    if (c.service_type === 'MENSILE') {
+        return `Mensile`;
+    }
+    return `Trimestrale`;
+}
+
 export function calculateWeeksRemaining(client) {
     if (!client.program_start_date || !client.program_duration_weeks) return null;
 
@@ -30,12 +35,10 @@ export function getProgramText(client) {
     return `${weeksRemaining} settimane rimanenti`;
 }
 
-// Status płatności na podstawie next_payment_due_date
 export function getPaymentInfo(client) {
     const dueStr = client.next_payment_due_date;
 
     if (!dueStr) {
-        // brak ustawionej kolejnej płatności → "w zawieszeniu"
         return { text: 'In Sospeso', status: 'unknown' };
     }
 
@@ -52,7 +55,6 @@ export function getPaymentInfo(client) {
     return { text: 'Scaduto', status: 'late' };
 }
 
-// Mapowanie selecta (frontend) na typ/cenę (backend)
 export function parseService(value) {
     switch (value) {
         case 'mensile_50': return ['MENSILE', 50];
@@ -63,7 +65,6 @@ export function parseService(value) {
     }
 }
 
-// Mapowanie z backendu na wartość selecta
 export function convertServiceToSelect(c) {
     const price = Number(c.service_price);
 
@@ -73,4 +74,43 @@ export function convertServiceToSelect(c) {
     if (c.service_type === 'TRIMESTRALE' && price === 210) return 'trimestrale_210';
 
     return '';
+}
+
+export function isSameMonthAndYear(dateStr, refDate = new Date()) {
+    if (!dateStr) return false;
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return false;
+
+    return (
+        d.getFullYear() === refDate.getFullYear() &&
+        d.getMonth() === refDate.getMonth()
+    );
+}
+
+export function formatMonthShort(dateStr) {
+    if (!dateStr) return 'Nessun check registrato';
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return 'Nessun check registrato';
+
+    const months = [
+        'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+    ];
+
+    const day = String(d.getDate()).padStart(2, '0');
+    const monthName = months[d.getMonth()];
+    const year = d.getFullYear();
+
+    return `${day} ${monthName} ${year}`;
+}
+
+export function getCheckStatus(client) {
+    const last = client.last_check_date;
+    const flag = Number(client.check_required || 0);
+
+    if (last && isSameMonthAndYear(last) && flag === 1) {
+        return { text: 'Check fatto', status: 'done' };
+    }
+
+    return { text: 'Check da fare', status: 'todo' };
 }

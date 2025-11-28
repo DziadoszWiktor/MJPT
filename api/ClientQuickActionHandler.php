@@ -28,7 +28,6 @@ class ClientQuickActionHandler
         }
 
         if ($type === 'mark_payment_done') {
-            // Ustaw dzisiejszą datę i kolejną płatność +1m / +3m wg typu
             $stmt = $this->pdo->prepare("SELECT service_type FROM clients WHERE id = :id");
             $stmt->execute([':id' => $id]);
             $row = $stmt->fetch();
@@ -57,10 +56,54 @@ class ClientQuickActionHandler
         }
 
         if ($type === 'toggle_check_required') {
-            $stmt = $this->pdo->prepare(
-                "UPDATE clients SET check_required = IF(check_required=1, 0, 1) WHERE id = :id"
-            );
+            $stmt = $this->pdo->prepare("SELECT check_required FROM clients WHERE id = :id");
             $stmt->execute([':id' => $id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$row) {
+                JsonResponse::error('Cliente non trovato', [], 404);
+            }
+
+            $current = (int) $row['check_required'];
+            $today   = date('Y-m-d');
+
+            if ($current === 0) {
+                try {
+                    $this->pdo->beginTransaction();
+
+                    $insert = $this->pdo->prepare("
+                        INSERT INTO client_checks (client_id, check_date)
+                        VALUES (:id, :check_date)
+                    ");
+                    $insert->execute([
+                        ':id'         => $id,
+                        ':check_date' => $today,
+                    ]);
+
+                    $update = $this->pdo->prepare("
+                        UPDATE clients
+                           SET check_required = 1,
+                               last_check_date = :today
+                         WHERE id = :id
+                    ");
+                    $update->execute([
+                        ':today' => $today,
+                        ':id'    => $id,
+                    ]);
+
+                    $this->pdo->commit();
+                } catch (PDOException $e) {
+                    $this->pdo->rollBack();
+                    JsonResponse::error('Errore durante l\'aggiornamento del check.', [], 500);
+                }
+            } else {
+                $update = $this->pdo->prepare("
+                    UPDATE clients
+                       SET check_required = 0
+                     WHERE id = :id
+                ");
+                $update->execute([':id' => $id]);
+            }
         }
 
         JsonResponse::success(['status' => 'ok']);

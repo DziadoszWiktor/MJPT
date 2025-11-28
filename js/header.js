@@ -1,7 +1,6 @@
 import { getClients } from './state.js';
-import { getPaymentInfo } from './utils.js';
+import { getPaymentInfo, getCheckStatus } from './utils.js';
 
-// Aktualizuje statystyki w górnym headerze
 export function updateHeaderStats() {
     const clients = getClients();
 
@@ -28,8 +27,9 @@ export function updateHeaderStats() {
 
     if (elNoti) {
         const noti = clients.filter(c => {
-            const info = getPaymentInfo(c);
-            return info.status !== 'ok';
+            const paymentInfo = getPaymentInfo(c);
+            const checkInfo   = getCheckStatus(c);
+            return paymentInfo.status !== 'ok' || checkInfo.status === 'todo';
         }).length;
         elNoti.innerText = noti;
     }

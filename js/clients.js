@@ -60,6 +60,133 @@ export function renderClientList() {
     });
 }
 
+async function loadClientChecks(clientId) {
+    const container = document.getElementById('clientChecksContainer');
+    if (!container) return;
+
+    container.innerHTML = '<p class="client-checks-loading">Caricamento storico check...</p>';
+
+    try {
+        const res = await fetch(
+            `api/Api.php?action=client_checks&client_id=${encodeURIComponent(clientId)}`
+        );
+
+        if (!res.ok) {
+            container.innerHTML = '<p class="client-checks-error">Errore nel caricamento dei check.</p>';
+            return;
+        }
+
+        const json = await res.json();
+        const payload = json.data || json;
+        const checks = payload.checks || [];
+
+        if (!checks.length) {
+            container.innerHTML = `
+                <div class="client-checks-block">
+                    <h4>Storico check mensili</h4>
+                    <p class="client-checks-empty">Nessun check registrato</p>
+                </div>
+            `;
+            return;
+        }
+
+        const formatCheckText = (ch) => {
+            const src = ch.created_at || ch.check_date;
+            if (!src) return 'Check fatto';
+
+            const d = new Date(String(src).replace(' ', 'T'));
+            if (Number.isNaN(d.getTime())) {
+                return `${src}`;
+            }
+
+            d.setHours(d.getHours() + 1);
+
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+
+            return `${day}.${month}.${year} ${hours}:${minutes}`;
+        };
+
+        const rowsHtml = checks.map(ch => `
+            <tr>
+                <td>${formatCheckText(ch)}</td>
+                <td class="client-checks-actions">
+                    <button type="button" class="btn-icon-small delete-check-btn"
+                            data-check-id="${ch.id}"
+                            aria-label="Elimina check">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            width="20" height="20" viewBox="0 0 24 24">
+                            <g fill="none" stroke="#ffffff" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 7h16" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                                <path d="M6 7l1 11a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-11" />
+                                <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                            </g>
+                        </svg>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+
+        container.innerHTML = `
+            <div class="client-checks-block">
+                <h4>Storico check mensili</h4>
+                <table class="client-checks-table">
+                    <thead>
+                        <tr>
+                            <th>Check fatto in data</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        const table = container.querySelector('.client-checks-table');
+        if (table) {
+            table.addEventListener('click', async (ev) => {
+                const btn = ev.target.closest('.delete-check-btn');
+                if (!btn) return;
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                const checkId = btn.dataset.checkId;
+                if (!checkId) return;
+
+                try {
+                    const resp = await fetch('api/Api.php?action=delete_client_check', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: checkId })
+                    });
+
+                    if (!resp.ok) {
+                        alert('Errore durante l\'eliminazione del check.');
+                        return;
+                    }
+
+                    await loadClientChecks(clientId);
+                } catch (e) {
+                    console.error(e);
+                    alert('Errore durante l\'eliminazione del check.');
+                }
+            }, { once: true });
+        }
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = '<p class="client-checks-error">Errore nel caricamento dei check.</p>';
+    }
+}
+
 function openClientModal(client = null) {
     const modal = document.getElementById('clientModal');
     if (!modal) return;
@@ -74,6 +201,7 @@ function openClientModal(client = null) {
     const startDate = document.getElementById('startDate');
     const programDuration = document.getElementById('programDuration');
     const notes = document.getElementById('notes');
+    const checksContainer = document.getElementById('clientChecksContainer');
 
     if (client) {
         if (title) title.innerText = 'Modifica Cliente';
@@ -85,11 +213,19 @@ function openClientModal(client = null) {
         if (startDate) startDate.value = client.program_start_date || '';
         if (programDuration) programDuration.value = client.program_duration_weeks || '';
         if (notes) notes.value = client.notes || '';
+
+        if (checksContainer) {
+            loadClientChecks(client.id);
+        }
     } else {
         if (title) title.innerText = 'Aggiungi Cliente';
         const form = document.getElementById('clientForm');
         if (form) form.reset();
         if (idInput) idInput.value = '';
+
+        if (checksContainer) {
+            checksContainer.innerHTML = '';
+        }
     }
 }
 
@@ -108,6 +244,7 @@ function openDeleteModal(client) {
         nameEl.textContent = `${client.first_name} ${client.last_name}`;
     }
 
+    modal.display = 'flex';
     modal.style.display = 'flex';
 }
 

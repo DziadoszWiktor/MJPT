@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="PT Manager - Dashboard per Personal Trainer">
     <meta name="theme-color" content="#4F46E5">
-    <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
+    <link rel="icon" href="./img/dumbbell.svg" type="image/svg+xml">
     <!--<link rel="manifest" href="./manifest.json">-->
     <title>PT Manager</title>
     <link rel="stylesheet" href="./style.css">
@@ -97,7 +97,7 @@
                 </button>
             </div>
 
-            <!-- Loading squares -->
+            <!-- LOADING -->
             <div id="dashboardLoader" class="dashboard-loader">
                 <div class="loader">
                     <div class="cube"></div>
@@ -260,6 +260,9 @@
                     <button type="button" class="btn-secondary" id="cancelBtn">Annulla</button>
                     <button type="submit" class="btn-primary">Salva Cliente</button>
                 </div>
+                <div id="clientChecksContainer" class="client-checks-container" style="margin-top: 50px;">
+                    <!-- Check history on edit -->
+                </div>
             </form>
         </div>
     </div>
@@ -273,7 +276,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Delete Client Modal -->
     <div class="modal" id="deleteConfirmModal">
         <div class="modal-content">

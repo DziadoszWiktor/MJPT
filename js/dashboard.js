@@ -1,5 +1,5 @@
 import { getClients } from './state.js';
-import { formatService, getProgramText, getPaymentInfo } from './utils.js';
+import { formatService, getProgramText, getPaymentInfo, getCheckStatus, formatMonthShort } from './utils.js';
 import { apiPost } from './api.js';
 
 export function renderDashboard() {
@@ -20,10 +20,17 @@ export function renderDashboard() {
     grid.innerHTML = allClients.map(client => {
         const payment = getPaymentInfo(client);
         const programText = getProgramText(client);
+        const checkStatus = getCheckStatus(client); // NEW
+        const lastCheckMonth = formatMonthShort(client.last_check_date); // NEW
 
         let paymentBadgeClass = 'badge-danger';
         if (payment.status === 'ok') paymentBadgeClass = 'badge-success';
         else if (payment.status === 'due_soon') paymentBadgeClass = 'badge-warning';
+
+        let checkBadgeClass = 'badge-warning';
+        if (checkStatus.status === 'done') {
+            checkBadgeClass = 'badge-success';
+        }
 
         return `
             <div class="client-tile" data-id="${client.id}">
@@ -44,6 +51,10 @@ export function renderDashboard() {
                             <span class="info-label">Programmazione</span>
                             <span class="info-value">${programText}</span>
                         </div>
+                        <div class="info-row">
+                            <span class="info-label">Ultimo check</span>
+                            <span class="info-value">${lastCheckMonth}</span>
+                        </div>
                     </div>
 
                     <div class="client-badges">
@@ -55,8 +66,8 @@ export function renderDashboard() {
                             ${payment.text}
                         </span>
 
-                        <span class="badge ${Number(client.check_required) === 1 ? 'badge-warning' : 'badge-success'}">
-                            ${Number(client.check_required) === 1 ? 'CHECK DA FARE' : 'CHECK FATTO'}
+                        <span class="badge ${checkBadgeClass}">
+                            ${checkStatus.text}
                         </span>
                     </div>
                 </div>
@@ -75,20 +86,18 @@ export function setupDashboardQuickActions(onAfterQuickAction) {
 
         const id = tile.dataset.id;
         let type = null;
-        const text = el.textContent || '';
+        const text = (el.textContent || '').trim();
+        const textLower = text.toLowerCase();
 
-        // aktywność
         if (text.includes('ATTIVO') || text.includes('NON ATTIVO')) {
             type = 'toggle_active';
         }
 
-        // płatność
         if (text.includes('Regola') || text.includes('Sospeso') || text.includes('Scaduto')) {
             type = 'mark_payment_done';
         }
 
-        // check
-        if (text.includes('CHECK')) {
+        if (textLower.includes('check da fare')) {
             type = 'toggle_check_required';
         }
 

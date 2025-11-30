@@ -67,7 +67,7 @@ export function renderDashboard() {
 
                     <div class="client-badges">
                         <span class="badge ${Number(client.is_active) === 1 ? 'badge-success' : 'badge-danger'}">
-                            ${Number(client.is_active) === 1 ? 'ATTIVO' : 'NON ATTIVO'}
+                            ${Number(client.is_active) === 1 ? 'Attivo' : 'Non attivo'}
                         </span>
 
                         <span class="badge ${paymentBadgeClass}">

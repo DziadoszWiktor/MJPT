@@ -30,14 +30,22 @@ export function setupSearch() {
     if (!input) return;
 
     input.addEventListener('input', () => {
-        const q = input.value.toLowerCase();
+        const q = input.value.trim().toLowerCase();
 
         document.querySelectorAll('#clientGrid .client-tile').forEach(card => {
-            card.style.display = card.innerText.toLowerCase().includes(q) ? 'block' : 'none';
+            const matches = card.innerText.toLowerCase().includes(q);
+            card.style.display = matches ? 'block' : 'none';
         });
 
         document.querySelectorAll('#clientList .client-list-item').forEach(item => {
-            item.style.display = item.innerText.toLowerCase().includes(q) ? 'flex' : 'none';
+            const matches = item.innerText.toLowerCase().includes(q);
+            item.style.display = matches ? 'flex' : 'none';
+        });
+
+        const rows = document.querySelectorAll('#clientList table tbody tr');
+        rows.forEach(row => {
+            const matches = row.innerText.toLowerCase().includes(q);
+            row.style.display = matches ? 'table-row' : 'none';
         });
     });
 }

@@ -133,7 +133,7 @@ body {
 /* Navigation */
 .nav-bar {
     position: sticky;
-    top: 120px;                /* zostaje przyklejony pod headerem */
+    top: 119px;                /* zostaje przyklejony pod headerem */
     z-index: 99;
     background-color: var(--bg-primary);
     border-bottom: 1px solid var(--border-color);

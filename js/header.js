@@ -7,13 +7,14 @@ export function updateHeaderStats() {
     const elActive = document.getElementById('activeClientsCount');
     const elAnnual = document.getElementById('annualRevenue');
     const elNoti   = document.getElementById('notificationCount');
+    const activeClients = clients.filter(c => Number(c.is_active) === 1);
 
     if (elActive) {
-        elActive.innerText = clients.filter(c => Number(c.is_active) === 1).length;
+        elActive.innerText = activeClients.length;
     }
 
     let total = 0;
-    clients.forEach(c => {
+    activeClients.forEach(c => {
         if (c.service_type === 'TRIMESTRALE') {
             total += Number(c.service_price) * 4;
         } else {
@@ -23,13 +24,22 @@ export function updateHeaderStats() {
 
     if (elAnnual) {
         elAnnual.innerText = '€' + total;
+        if (total > 5000) {
+            elAnnual.style.color = 'var(--danger)';
+        } else {
+            elAnnual.style.color = '';
+        }
     }
 
     if (elNoti) {
-        const noti = clients.filter(c => {
+        const noti = activeClients.filter(c => {
             const paymentInfo = getPaymentInfo(c);
             const checkInfo   = getCheckStatus(c);
-            return paymentInfo.status !== 'ok' || checkInfo.status === 'todo';
+
+            return (
+                paymentInfo.status !== 'ok' ||
+                checkInfo.status === 'todo'
+            );
         }).length;
         elNoti.innerText = noti;
     }

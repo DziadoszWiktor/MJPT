@@ -13,12 +13,14 @@ export function renderFinance() {
     if (!tbody) return;
 
     const clients = getClients();
+    const activeClients = clients.filter(c => Number(c.is_active) === 1);
+
     tbody.innerHTML = '';
 
     let totalYear = 0;
     let totalMonthly = 0;
 
-    clients.forEach(c => {
+    activeClients.forEach(c => {
         const annualIncome = (c.service_type === 'TRIMESTRALE')
             ? Number(c.service_price) * 4
             : Number(c.service_price) * 12;
@@ -36,18 +38,35 @@ export function renderFinance() {
         tbody.appendChild(tr);
     });
 
-    const activeCount = clients.filter(c => Number(c.is_active) === 1).length;
+    const activeCount = activeClients.length;
     const totalCount = clients.length;
 
-    if (annual) annual.innerText = '€' + totalYear;
-    if (active) active.innerText = activeCount;     
+    if (annual) {
+        annual.innerText = '€' + totalYear;
+        if (totalYear > 5000) {
+            annual.style.color = 'var(--danger)';
+        } else {
+            annual.style.color = '';
+        }
+    }
+
+    if (active) active.innerText = activeCount;
     if (totalClientsEl) totalClientsEl.innerText = totalCount;
-    if (monthly) monthly.innerText = '€' + totalMonthly;
+
+    if (monthly) {
+        monthly.innerText = '€' + totalMonthly;
+    }
 
     if (progress && percentLabel) {
         const percent = Math.min(100, (totalYear / 5000) * 100);
         percentLabel.innerText = percent.toFixed(1) + '%';
         progress.style.width = percent + '%';
+
+        if (totalYear > 5000) {
+            progress.style.backgroundColor = 'var(--danger)';
+        } else {
+            progress.style.backgroundColor = '';
+        }
     }
 }
 

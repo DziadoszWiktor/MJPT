@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="it" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>PT Manager - Login</title>
+    <link rel="stylesheet" href="login-style.css">
+</head>
+<body>
+    <!-- FULLSCREEN VIDEO BACKGROUND -->
+    <div class="bg-video-wrapper">
+        <video
+            id="bgVideo"
+            class="bg-video"
+            autoplay
+            muted
+            loop
+            playsinline
+        >
+            <source src="../img/bg.mp4" type="video/mp4">
+            Il tuo browser non supporta i video HTML5.
+        </video>
+        <div class="bg-video-overlay"></div>
+    </div>
+
+    <div class="container">
+        <div class="login-card">
+            <!-- Left Side - Image with Animations -->
+            <div class="image-side" id="imageSide">
+                <img src="../img/gym-background.jpg" alt="Gym Background" class="side-image" id="sideImage">
+                <div class="overlay" id="overlay"></div>
+                
+                <!-- Floating Particles -->
+                <div class="particles" id="particles">
+                    <div class="particle particle-1"></div>
+                    <div class="particle particle-2"></div>
+                    <div class="particle particle-3"></div>
+                </div>
+                
+                <!-- Animated Text -->
+                <div class="image-text" id="imageText">
+                    <h2 class="image-title" id="imageTitle">PT Manager</h2>
+                    <p class="image-subtitle" id="imageSubtitle">Gestisci i tuoi clienti con facilità</p>
+                </div>
+                
+                <!-- Energy Waves -->
+                <div class="energy-waves" id="energyWaves">
+                    <div class="wave wave-1"></div>
+                    <div class="wave wave-2"></div>
+                </div>
+            </div>
+
+            <!-- Right Side - Login Form -->
+            <div class="form-side">
+                <div class="form-header">
+                    <h1 class="form-title" id="formTitle">Accedi</h1>
+                    <p class="form-subtitle">Inserisci le tue credenziali per continuare</p>
+                </div>
+
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="username" class="form-label" id="usernameLabel">Login</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            class="form-input" 
+                            placeholder="Inserisci il tuo username"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label" id="passwordLabel">Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            class="form-input" 
+                            placeholder="Inserisci la tua password"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="submit-button" id="submitButton">
+                        Accedi
+                    </button>
+
+                    <div class="forgot-password-container">
+                        <a href="#" class="forgot-password" id="forgotPassword">
+                            Password dimenticata?
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

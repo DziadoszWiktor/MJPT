@@ -1,0 +1,324 @@
+<?php
+require __DIR__ . '/auth.php';
+?>
+
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PT Manager - Dashboard per Personal Trainer">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="icon" href="./img/dumbbell-head.svg" type="image/svg+xml">
+    <!--<link rel="manifest" href="./manifest.json">-->
+    <title>PT Manager</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./dark-mode.css">
+</head>
+
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="logo">
+                    <span class="logo-icon">
+                        <img src="./img/dumbbell.svg" alt="PT Manager logo" />
+                    </span>
+                    <h1>PT Manager</h1>
+                </div>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+                    </svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="header-stats">
+                <div class="stat-card">
+                    <div class="stat-label">Clienti Attivi</div>
+                    <div class="stat-value" id="activeClientsCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Guadagno Annuale</div>
+                    <div class="stat-value" id="annualRevenue">€0</div>
+                </div>
+                <div class="stat-card notification-card" id="notificationCard">
+                    <div class="stat-label">Verifiche da fare</div>
+                    <div class="stat-value" id="notificationCount">0</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-content">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-section="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                    </svg>
+                    Dashboard
+                </button>
+                <button class="nav-tab" data-section="clients">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                    </svg>
+                    Clienti
+                </button>
+                <button class="nav-tab" data-section="finance">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                    </svg>
+                    Finanze
+                </button>
+            </div>
+            <div class="search-bar">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Cerca clienti...">
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="section-header">
+                <h2>Dashboard Generale</h2>
+                <button class="btn-primary" id="addClientBtn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+                    </svg>
+                    Aggiungi Cliente
+                </button>
+            </div>
+
+            <!-- LOADING -->
+            <div id="dashboardLoader" class="dashboard-loader">
+                <div class="loader">
+                    <div class="cube"></div>
+                    <div class="cube"></div>
+                    <div class="cube"></div>    
+                    <div class="cube"></div>
+                </div>
+            </div>
+
+            <div class="client-grid" id="clientGrid">
+                <!-- Client tiles will be dynamically inserted here -->
+            </div>
+            <div class="empty-state" id="emptyState">
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                    <circle cx="32" cy="32" r="32" fill="#F3F4F6"/>
+                    <path d="M32 20v24M20 32h24" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h3>Nessun cliente presente</h3>
+                <p>Aggiungi il tuo primo cliente per iniziare</p>
+            </div>
+        </section>
+
+        <!-- Clients Section -->
+        <section id="clients" class="content-section">
+            <div class="section-header">
+                <h2>Gestione Clienti</h2>
+                <button class="btn-primary" id="addClientBtn2">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+                    </svg>
+                    Aggiungi Cliente
+                </button>
+            </div>
+            <div class="client-list" id="clientList">
+                <!-- Client list items will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Finance Section -->
+        <section id="finance" class="content-section">
+            <div class="section-header">
+                <h2>Finanze</h2>
+                <button class="btn-primary" id="exportDataBtn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                    Esporta Dati
+                </button>
+            </div>
+            <div class="finance-stats">
+                <div class="finance-card">
+                    <h3>Guadagno Annuale Totale</h3>
+                    <div class="finance-value" id="totalAnnualRevenue">€0</div>
+                    <div class="finance-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="revenueProgress"></div>
+                        </div>
+                        <div class="progress-label">
+                            <span id="revenuePercentage">0%</span>
+                            <span>Limite: €5.000</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="finance-card">
+                    <h3>Entrate Mensili Medie</h3>
+                    <div class="finance-value" id="monthlyAverage">€0</div>
+                </div>
+                <div class="finance-card">
+                    <h3>Clienti Attivi</h3>
+                    <div class="finance-value" id="financeActiveClients">0</div>
+                </div>
+                <div class="finance-card">
+                    <h3>Clienti Registrati</h3>
+                    <div class="finance-value" id="financeTotalClients">0</div>
+                </div>
+            </div>
+            <div class="finance-table-container">
+                <h3>Statistiche Clienti</h3>
+                <table class="finance-table" id="financeTable">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Servizio</th>
+                            <th>Importo</th>
+                            <th>Stima Annuale</th>
+                        </tr>
+                    </thead>
+                    <tbody id="financeTableBody">
+                        <!-- Table rows will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Client Form Modal -->
+    <div class="modal" id="clientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Aggiungi Cliente</h2>
+                <button class="modal-close" id="closeModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="clientForm">
+                <input type="hidden" id="clientId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">Nome *</label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Cognome *</label>
+                        <input type="text" id="lastName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Numero di telefono</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Data Inizio *</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="service">Servizio *</label>
+                        <select id="service" required>
+                            <option value="">Seleziona servizio</option>
+                            <option value="mensile_50">Mensile - €50</option>
+                            <option value="mensile_70">Mensile - €70</option>
+                            <option value="trimestrale_150">Trimestrale - €150</option>
+                            <option value="trimestrale_210">Trimestrale - €210</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="programDuration">Durata Programma (settimane) *</label>
+                        <input
+                            type="number"
+                            id="programDuration"
+                            min="1"
+                            max="52"
+                            step="1"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Note</label>
+                    <textarea id="notes" rows="3" placeholder="Aggiungi note sul cliente..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancelBtn">Annulla</button>
+                    <button type="submit" class="btn-primary">Salva Cliente</button>
+                </div>
+                <div id="clientChecksContainer" class="client-checks-container" style="margin-top: 50px;">
+                    <!-- Check history on edit -->
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Action Modal -->
+    <div class="quick-action-modal" id="quickActionModal">
+        <div class="quick-action-content">
+            <h3 id="quickActionTitle">Azioni Rapide</h3>
+            <div class="quick-action-buttons" id="quickActionButtons">
+                <!-- Buttons will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Client Modal -->
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h2>Conferma eliminazione</h2>
+                <button class="modal-close" id="closeDeleteModal">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>
+                    Sei sicuro di voler eliminare il cliente
+                    <strong id="deleteClientName"></strong>?
+                </p>
+            </div>
+
+            <div class="form-actions delete-modal-actions">
+                <button type="button" class="btn-secondary" id="cancelDeleteBtn">
+                    Annulla
+                </button>
+                <button type="button" class="btn-danger" id="confirmDeleteBtn">
+                    Elimina
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./js/script.js"></script>
+</body>
+</html>

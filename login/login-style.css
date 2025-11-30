@@ -1,0 +1,418 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    color-scheme: light !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html.dark {
+    color-scheme: light !important;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top left, #e5f3ff 0, #f9fafb 35%, #e5e7eb 100%);
+    padding: 1.5rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 1024px;
+}
+
+.login-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #ffffff;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -18px rgba(15, 23, 42, 0.45);
+    transform: translateY(0);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.image-side {
+    position: relative;
+    min-height: 500px;
+    background: #020617;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.side-image {
+    width: 110%;
+    height: 110%;
+    object-fit: cover;
+    opacity: 0.7;
+    transform: translate3d(0, 0, 0) scale(1.05);
+    transition: transform 0.7s ease-out, opacity 0.5s ease-out;
+}
+
+.side-image.focus-login {
+    opacity: 0.8;
+}
+
+.side-image.focus-password {
+    opacity: 0.75;
+}
+
+.side-image.submitting {
+    opacity: 0.85;
+    filter: brightness(1.1);
+}
+
+/* Overlay */
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.65), transparent 55%),
+                linear-gradient(to top, rgba(15, 23, 42, 0.8), transparent);
+    transition: background 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.overlay.focus-login {
+    background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.85), transparent 55%),
+                linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
+}
+
+.overlay.focus-password {
+    background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.8), transparent 55%),
+                linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
+}
+
+.overlay.submitting {
+    background: radial-gradient(circle at center, rgba(16, 185, 129, 0.9), transparent 60%),
+                linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
+}
+
+.particles {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.particles.visible {
+    opacity: 1;
+}
+
+.particle {
+    position: absolute;
+    background: rgba(226, 232, 240, 0.85);
+    border-radius: 50%;
+}
+
+.particle-1 {
+    top: 24%;
+    left: 18%;
+    width: 8px;
+    height: 8px;
+    animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+    opacity: 0.7;
+}
+
+.particle-2 {
+    top: 35%;
+    right: 20%;
+    width: 12px;
+    height: 12px;
+    background: rgba(148, 163, 184, 0.9);
+    animation: bounce 1.2s infinite;
+    animation-delay: 0.15s;
+    opacity: 0.7;
+}
+
+.particle-3 {
+    bottom: 26%;
+    left: 30%;
+    width: 9px;
+    height: 9px;
+    background: rgba(203, 213, 225, 0.9);
+    animation: pulse 2.3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation-delay: 0.3s;
+    opacity: 0.75;
+}
+
+.image-text {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    color: #e5e7eb;
+    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+}
+
+.image-title {
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.03em;
+    text-shadow: 0 10px 30px rgba(15, 23, 42, 0.8);
+    transition: transform 0.5s ease, color 0.5s ease;
+}
+
+.image-title.focus-login {
+    color: #e5e7eb;
+    transform: scale(1.05);
+}
+
+.image-title.focus-password {
+    color: #c7d2fe;
+    transform: scale(1.05);
+}
+
+.image-title.submitting {
+    color: #6ee7b7;
+    transform: scale(1.08);
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.image-subtitle {
+    color: #cbd5f5;
+    font-size: 0.95rem;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.image-text.focused .image-subtitle {
+    transform: translateX(0.35rem);
+}
+
+.energy-waves {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.energy-waves.visible {
+    opacity: 1;
+}
+
+.wave {
+    position: absolute;
+    inset: 0;
+    border: 3px solid rgba(110, 231, 183, 0.85);
+    border-radius: 50%;
+    animation: ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    opacity: 0.45;
+}
+
+.wave-2 {
+    border-color: rgba(59, 130, 246, 0.8);
+    animation-delay: 0.25s;
+    opacity: 0.35;
+}
+
+.form-side {
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #ffffff;
+}
+
+.form-header {
+    margin-bottom: 2rem;
+}
+
+.form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #020617;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s, color 0.3s;
+}
+
+.form-title.focused {
+    transform: scale(1.04);
+    color: #0f172a;
+}
+
+.form-subtitle {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+/* Form */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    color: #374151;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.form-label.focused {
+    color: #4f46e5;
+    transform: translateY(-1px);
+}
+
+.form-input {
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    color: #020617;
+    background: #f9fafb;
+    transition: all 0.25s ease;
+    outline: none;
+}
+
+.form-input:focus {
+    background: #ffffff;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.35);
+    transform: translateY(-1px);
+}
+
+.form-input::placeholder {
+    color: #9ca3af;
+}
+
+.submit-button {
+    margin-top: 0.5rem;
+    padding: 1.05rem 1rem;
+    background: linear-gradient(135deg, #4F46E5, #463ee4);
+    color: #f9fafb;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    box-shadow: 0 15px 30px -15px rgba(15, 23, 42, 0.7);
+}
+
+.submit-button:hover {
+    background: linear-gradient(135deg, #111827, #020617);
+    transform: translateY(-1px);
+    box-shadow: 0 20px 40px -20px rgba(15, 23, 42, 0.85);
+}
+
+.submit-button.submitting {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    transform: translateY(0);
+    animation: pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.submit-button:disabled {
+    cursor: not-allowed;
+}
+
+.forgot-password-container {
+    text-align: center;
+    position: relative;
+}
+
+.forgot-password {
+    color: #6b7280;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color 0.25s, opacity 0.25s;
+}
+
+.forgot-password:hover {
+    color: #111827;
+}
+
+.forgot-password.dimmed {
+    opacity: 0.5;
+}
+
+@keyframes ping {
+    75%, 100% {
+        transform: scale(2.2);
+        opacity: 0;
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(-25%);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+@keyframes slideInFromTop {
+    from {
+        transform: translateX(-50%) translateY(-0.5rem);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-card {
+        grid-template-columns: 1fr;
+    }
+
+    .image-side {
+        min-height: 260px;
+    }
+
+    .form-side {
+        padding: 2rem;
+    }
+}
+
+.bg-video-wrapper {
+    position: fixed;
+    inset: 0;
+    z-index: 0;          
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.bg-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bg-video-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(255,255,255,0.22), rgba(248,250,252,0.08)),
+                radial-gradient(circle at bottom right, rgba(239,246,255,0.22), rgba(226,232,240,0.08));
+}
+
+.container {
+    width: 100%;
+    max-width: 1024px;
+    position: relative;
+    z-index: 1;
+}
+

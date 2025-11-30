@@ -1,5 +1,17 @@
 <?php
 
+session_start();
+
+if (empty($_SESSION['logged_in'])) {
+    header('Content-Type: application/json');
+    http_response_code(401);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Non autorizzato — effettua il login'
+    ]);
+    exit;
+}
+
 $dir = __DIR__;
 
 require $dir . '/DatabaseConnection.php';
@@ -66,7 +78,6 @@ switch ($action) {
     case 'delete_client_check':
         (new ClientCheckDeleteHandler($pdo))->handle();
         break;
-        
     default:
         (new FallbackHandler())->handle($action);
         break;

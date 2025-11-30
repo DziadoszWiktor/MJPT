@@ -220,6 +220,21 @@
                     <label for="email">Email *</label>
                     <input type="email" id="email" required>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Numero di telefono</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Data Inizio *</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="service">Servizio *</label>
@@ -232,26 +247,18 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="startDate">Data Inizio *</label>
-                        <input type="date" id="startDate" required>
+                        <label for="programDuration">Durata Programma (settimane) *</label>
+                        <input
+                            type="number"
+                            id="programDuration"
+                            min="1"
+                            max="52"
+                            step="1"
+                            required
+                        >
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="programDuration">Durata Programma (settimane) *</label>
-                    <select id="programDuration" required>
-                        <option value="">Seleziona durata</option>
-                        <option value="1">1 settimana</option>
-                        <option value="2">2 settimane</option>
-                        <option value="3">3 settimane</option>
-                        <option value="4">4 settimane</option>
-                        <option value="5">5 settimane</option>
-                        <option value="6">6 settimane</option>
-                        <option value="7">7 settimane</option>
-                        <option value="8">8 settimane</option>
-                        <option value="9">9 settimane</option>
-                        <option value="10">10 settimane</option>
-                    </select>
-                </div>
+
                 <div class="form-group">
                     <label for="notes">Note</label>
                     <textarea id="notes" rows="3" placeholder="Aggiungi note sul cliente..."></textarea>

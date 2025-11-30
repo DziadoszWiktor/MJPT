@@ -28,24 +28,34 @@ class ClientQuickActionHandler
         }
 
         if ($type === 'mark_payment_done') {
-            $stmt = $this->pdo->prepare("SELECT service_type FROM clients WHERE id = :id");
+            $stmt = $this->pdo->prepare("
+                SELECT service_type, next_payment_due_date
+                FROM clients
+                WHERE id = :id
+            ");
             $stmt->execute([':id' => $id]);
-            $row = $stmt->fetch();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $today = date('Y-m-d');
-            $next  = $today;
-
-            if ($row && $row['service_type'] === 'TRIMESTRALE') {
-                $next = date('Y-m-d', strtotime('+3 months'));
-            } else {
-                $next = date('Y-m-d', strtotime('+1 month'));
+            if (!$row) {
+                JsonResponse::error('Cliente non trovato', [], 404);
             }
+
+            $todayObj = new DateTimeImmutable('today');
+            $today    = $todayObj->format('Y-m-d');
+
+            $baseDateObj = !empty($row['next_payment_due_date'])
+                ? new DateTimeImmutable($row['next_payment_due_date'])
+                : $todayObj;
+
+            $intervalSpec = ($row['service_type'] === 'TRIMESTRALE') ? '+3 months' : '+1 month';
+            $nextObj      = $baseDateObj->modify($intervalSpec);
+            $next         = $nextObj->format('Y-m-d');
 
             $update = $this->pdo->prepare("
                 UPDATE clients
-                   SET last_payment_date = :today,
-                       next_payment_due_date = :next
-                 WHERE id = :id
+                SET last_payment_date     = :today,
+                    next_payment_due_date = :next
+                WHERE id = :id
             ");
 
             $update->execute([
@@ -82,9 +92,9 @@ class ClientQuickActionHandler
 
                     $update = $this->pdo->prepare("
                         UPDATE clients
-                           SET check_required = 1,
-                               last_check_date = :today
-                         WHERE id = :id
+                        SET check_required = 1,
+                            last_check_date = :today
+                        WHERE id = :id
                     ");
                     $update->execute([
                         ':today' => $today,
@@ -94,13 +104,13 @@ class ClientQuickActionHandler
                     $this->pdo->commit();
                 } catch (PDOException $e) {
                     $this->pdo->rollBack();
-                    JsonResponse::error('Errore durante l\'aggiornamento del check.', [], 500);
+                    JsonResponse::error('Errore aggiornamento check', [], 500);
                 }
             } else {
                 $update = $this->pdo->prepare("
                     UPDATE clients
-                       SET check_required = 0
-                     WHERE id = :id
+                    SET check_required = 0
+                    WHERE id = :id
                 ");
                 $update->execute([':id' => $id]);
             }

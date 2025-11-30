@@ -38,8 +38,12 @@ export function getProgramText(client) {
 export function getPaymentInfo(client) {
     const dueStr = client.next_payment_due_date;
 
+    if (!client.last_payment_date) {
+        return { text: 'Da Pagare', status: 'unknown' };
+    }
+
     if (!dueStr) {
-        return { text: 'In Sospeso', status: 'unknown' };
+        return { text: 'Da Pagare', status: 'unknown' };
     }
 
     const now = new Date();
@@ -50,7 +54,7 @@ export function getPaymentInfo(client) {
         return { text: 'In Regola', status: 'ok' };
     }
     if (diffDays >= 0) {
-        return { text: 'In Sospeso', status: 'due_soon' };
+        return { text: 'Da Pagare', status: 'due_soon' };
     }
     return { text: 'Scaduto', status: 'late' };
 }
@@ -104,7 +108,29 @@ export function formatMonthShort(dateStr) {
     return `${day} ${monthName} ${year}`;
 }
 
+export function formatNextPayment(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return '—';
+
+    const months = [
+        'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+    ];
+
+    const day = String(d.getDate()).padStart(2, '0');
+    const monthName = months[d.getMonth()];
+    const year = d.getFullYear();
+    return `${day} ${monthName} ${year}`;
+}
+
 export function getCheckStatus(client) {
+    const isActive = Number(client.is_active) === 1;
+
+    if (!isActive) {
+        return { text: '-', status: 'disabled' };
+    }
+
     const last = client.last_check_date;
     const flag = Number(client.check_required || 0);
 

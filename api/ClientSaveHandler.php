@@ -34,8 +34,18 @@ class ClientSaveHandler
             JsonResponse::error('Imię, nazwisko i email są wymagane.');
         }
 
+        $nextPayment = null;
+        if ($programStartDate) {
+            try {
+                $startObj = new DateTimeImmutable($programStartDate);
+                $interval = ($serviceType === 'TRIMESTRALE') ? '+3 months' : '+1 month';
+                $nextPayment = $startObj->modify($interval)->format('Y-m-d');
+            } catch (Exception $e) {
+                $nextPayment = null;
+            }
+        }
+
         if ($id > 0) {
-            // UPDATE
             $stmt = $this->pdo->prepare("
                 UPDATE clients SET
                     first_name = :first_name,
@@ -66,19 +76,19 @@ class ClientSaveHandler
             ]);
 
             JsonResponse::success(['status' => 'updated']);
+
         } else {
-            // INSERT
             $stmt = $this->pdo->prepare("
                 INSERT INTO clients
                     (first_name, last_name, email, phone,
                      service_type, service_price,
                      program_start_date, program_duration_weeks,
-                     notes, is_active)
+                     notes, is_active, next_payment_due_date)
                 VALUES
                     (:first_name, :last_name, :email, :phone,
                      :service_type, :service_price,
                      :program_start_date, :program_duration_weeks,
-                     :notes, :is_active)
+                     :notes, :is_active, :next_payment_due_date)
             ");
 
             $stmt->execute([
@@ -92,6 +102,7 @@ class ClientSaveHandler
                 ':program_duration_weeks' => $programDurationWeeks,
                 ':notes'      => $notes,
                 ':is_active'  => $isActive,
+                ':next_payment_due_date' => $nextPayment,
             ]);
 
             JsonResponse::success([

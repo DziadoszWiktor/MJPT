@@ -1,5 +1,5 @@
 import { getClients } from './state.js';
-import { formatService, getProgramText, getPaymentInfo, getCheckStatus, formatMonthShort } from './utils.js';
+import { formatService, getProgramText, getPaymentInfo, getCheckStatus, formatMonthShort, formatNextPayment } from './utils.js';
 import { apiPost } from './api.js';
 
 export function renderDashboard() {
@@ -20,8 +20,9 @@ export function renderDashboard() {
     grid.innerHTML = allClients.map(client => {
         const payment = getPaymentInfo(client);
         const programText = getProgramText(client);
-        const checkStatus = getCheckStatus(client); // NEW
-        const lastCheckMonth = formatMonthShort(client.last_check_date); // NEW
+        const checkStatus = getCheckStatus(client);
+        const lastCheckMonth = formatMonthShort(client.last_check_date);
+        const nextPaymentFormatted = formatNextPayment(client.next_payment_due_date);
 
         let paymentBadgeClass = 'badge-danger';
         if (payment.status === 'ok') paymentBadgeClass = 'badge-success';
@@ -30,6 +31,8 @@ export function renderDashboard() {
         let checkBadgeClass = 'badge-warning';
         if (checkStatus.status === 'done') {
             checkBadgeClass = 'badge-success';
+        } else if (checkStatus.status === 'disabled') {
+            checkBadgeClass = 'badge-danger';
         }
 
         return `
@@ -54,6 +57,11 @@ export function renderDashboard() {
                         <div class="info-row">
                             <span class="info-label">Ultimo check</span>
                             <span class="info-value">${lastCheckMonth}</span>
+                        </div>
+
+                        <div class="info-row">
+                            <span class="info-label">Prossimo pagamento</span>
+                            <span class="info-value">${nextPaymentFormatted}</span>
                         </div>
                     </div>
 
@@ -86,18 +94,17 @@ export function setupDashboardQuickActions(onAfterQuickAction) {
 
         const id = tile.dataset.id;
         let type = null;
-        const text = (el.textContent || '').trim();
-        const textLower = text.toLowerCase();
+        const text = (el.textContent || '').trim().toLowerCase();
 
-        if (text.includes('ATTIVO') || text.includes('NON ATTIVO')) {
+        if (text.includes('attivo') || text.includes('non attivo')) {
             type = 'toggle_active';
         }
 
-        if (text.includes('Regola') || text.includes('Sospeso') || text.includes('Scaduto')) {
+        if (text.includes('da pagare') || text.includes('scaduto') || text.includes('regola')) {
             type = 'mark_payment_done';
         }
 
-        if (textLower.includes('check da fare')) {
+        if (text.includes('check da fare')) {
             type = 'toggle_check_required';
         }
 

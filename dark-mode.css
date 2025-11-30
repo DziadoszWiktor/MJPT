@@ -190,3 +190,35 @@ body.dark .client-list-note-text,
 body.dark .client-note-value {
     color: #e5e7eb !important;
 }
+
+body.dark .client-list-table-container {
+    background-color: #111827;
+    border: 1px solid #1f2937;
+}
+
+body.dark #clients .clients-table thead {
+    background-color: #020617;
+}
+
+body.dark #clients .clients-table thead th {
+    border-bottom: 1px solid #020617;
+}
+
+body.dark #clients .clients-table tbody tr:nth-child(odd) {
+    background-color: #0b1120;
+}
+
+body.dark #clients .clients-table tbody tr:nth-child(even) {
+    background-color: #020617; 
+}
+
+body.dark #clients .clients-table-actions .btn-edit {
+    background: linear-gradient(135deg, #0b1120, #060d30);
+    color: #020617;              
+    border: 1px solid #192455;
+}
+
+body.dark #clients .clients-table-actions .btn-edit .btn-dots::before {
+    background-color: #ffffff;
+    box-shadow: -6px 0 0 #ffffff, 6px 0 0 #ffffff;
+}

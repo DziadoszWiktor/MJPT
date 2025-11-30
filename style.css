@@ -133,7 +133,7 @@ body {
 /* Navigation */
 .nav-bar {
     position: sticky;
-    top: 119px;                /* zostaje przyklejony pod headerem */
+    top: 119px;
     z-index: 99;
     background-color: var(--bg-primary);
     border-bottom: 1px solid var(--border-color);
@@ -264,12 +264,6 @@ body {
 .btn-primary {
     background: var(--primary);
     color: white;
-}
-
-.btn-primary:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
 }
 
 .btn-secondary {
@@ -1079,8 +1073,8 @@ body.dark .dashboard-loader .cube {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
     border: none;
     background-color: #b42b2b;
@@ -1107,7 +1101,7 @@ body.dark .dashboard-loader .cube {
     justify-content: center;
     gap: 0.5rem;
     border: none;
-    background: #b42b2b;
+    background: #791a1a;
     color: #ffffff;
     transition: all 0.2s ease;
 }
@@ -1203,10 +1197,10 @@ body.dark .dashboard-loader .cube {
 }
 
 .btn-icon-small {
-    background-color: #b42b2b;
+    background-color: #791a1a;
     border: none;
-    border-radius: 10px;
-    padding: 6px 10px;
+    border-radius: 8px;
+    padding: 10px 10px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -1214,6 +1208,92 @@ body.dark .dashboard-loader .cube {
 }
 
 .btn-icon-small:hover {
-    background-color: #8f2222;
+    background-color: #811010;
+}
+
+#clients .clients-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#clients .clients-table th,
+#clients .clients-table td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+}
+
+#clients .clients-table-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.8rem;
+    white-space: nowrap;
+}
+
+#clients .clients-table-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#clients .btn-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: var(--radius-sm);
+    background-color: #791a1a;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#clients .btn-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+#clients .clients-table-actions .btn-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+}
+
+#clients .clients-table-actions .btn-edit .btn-dots {
+    display: inline-block;
+    font-size: 0.8rem;
+    line-height: 1;
+    letter-spacing: 2px;
+}
+
+#clients .clients-table-actions .btn-edit .btn-dots {
+    position: relative;
+    display: inline-block;
+    width: 18px;       
+    height: 4px;      
+    font-size: 0;      
+}
+
+#clients .clients-table-actions .btn-edit .btn-dots::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    border-radius: 999px;
+    background-color: #000000;
+    transform: translate(-50%, -50%);
+    box-shadow: -6px 0 0 #000000, 6px 0 0 #000000;
+}
+
+#clients .clients-table-actions .btn-edit {
+    background: linear-gradient(135deg, #ffffff, #e2e3e6);
+    color: #d1d1d1;
+    border: 1px solid #e8e8ee;
 }
 

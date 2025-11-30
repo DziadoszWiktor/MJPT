@@ -9,55 +9,63 @@ export function renderClientList() {
     if (!list) return;
 
     const clients = getClients();
-    list.innerHTML = '';
 
-    clients.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'client-list-item';
+    if (!clients.length) {
+        list.innerHTML = '<p>Nessun cliente registrato.</p>';
+        return;
+    }
+
+    const rowsHtml = clients.map(c => {
         const rawNote = (c.notes || '').trim();
         const notePreview = rawNote
-            ? (rawNote.length > 30 ? rawNote.slice(0, 9) + '…' : rawNote)
+            ? (rawNote.length > 30 ? rawNote.slice(0, 30) + '…' : rawNote)
             : 'Nessuna nota';
 
-        div.innerHTML = `
-            <div class="client-list-main">
-                <div class="client-list-text">
-                    <strong class="client-list-name">
-                        ${c.first_name} ${c.last_name}
-                    </strong>
-                    <div class="client-list-service">
-                        ${formatService(c)}
-                    </div>
-                </div>
-                <div class="client-list-spacer"></div>
+        return `
+            <tr>
+                <td>${c.first_name} ${c.last_name}</td>
+                <td>${notePreview}</td>
+                <td class="clients-table-actions">
+                    <button
+                        class="btn-primary btn-edit edit-btn"
+                        data-id="${c.id}"
+                        aria-label="Modifica cliente"
+                    >
+                        <span class="btn-dots">•••</span>
+                    </button>
 
-                <div class="client-list-note">
-                    <div class="client-note-label">Note:</div>
-                    <div class="client-note-value">${notePreview}</div>
-                </div>
-            </div>
-            <div class="client-list-actions">
-                <button class="btn-primary btn-edit edit-btn" data-id="${c.id}">
-                    Modifica
-                </button>
-                <button class="btn-icon delete-btn" data-id="${c.id}" aria-label="Elimina cliente">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        width="26" height="26" viewBox="0 0 24 24">
-                        <g fill="none" stroke="#ffffff" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 7h16" />
-                            <path d="M10 11v6" />
-                            <path d="M14 11v6" />
-                            <path d="M6 7l1 11a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-11" />
-                            <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                        </g>
-                    </svg>
-                </button>
-            </div>
+                    <button class="btn-icon delete-btn" data-id="${c.id}" aria-label="Elimina cliente">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            width="26" height="26" viewBox="0 0 24 24">
+                            <g fill="none" stroke="#ffffff" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 7h16" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                                <path d="M6 7l1 11a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-11" />
+                                <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                            </g>
+                        </svg>
+                    </button>
+                </td>
+            </tr>
         `;
+    }).join('');
 
-        list.appendChild(div);
-    });
+    list.innerHTML = `
+        <table class="finance-table clients-table">
+            <thead>
+                <tr>
+                    <th><h3>Cliente</h3></th>
+                    <th><h3>Note</h3></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rowsHtml}
+            </tbody>
+        </table>
+    `;
 }
 
 async function loadClientChecks(clientId) {

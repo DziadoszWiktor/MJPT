@@ -60,7 +60,7 @@ export function renderDashboard() {
                         </div>
 
                         <div class="info-row">
-                            <span class="info-label">Prossimo pagamento</span>
+                            <span class="info-label">Prossimo pagamento entro</span>
                             <span class="info-value">${nextPaymentFormatted}</span>
                         </div>
                     </div>

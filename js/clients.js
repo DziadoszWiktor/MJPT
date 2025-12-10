@@ -9,7 +9,7 @@ export function renderClientList() {
     if (!list) return;
 
     const clients = getClients();
-
+    
     if (!clients.length) {
         list.innerHTML = '<p>Nessun cliente registrato.</p>';
         return;
@@ -205,6 +205,7 @@ function openClientModal(client = null) {
     const firstName = document.getElementById('firstName');
     const lastName = document.getElementById('lastName');
     const email = document.getElementById('email');
+    const phone = document.getElementById('phone');
     const service = document.getElementById('service');
     const startDate = document.getElementById('startDate');
     const programDuration = document.getElementById('programDuration');
@@ -217,6 +218,7 @@ function openClientModal(client = null) {
         if (firstName) firstName.value = client.first_name || '';
         if (lastName) lastName.value = client.last_name || '';
         if (email) email.value = client.email || '';
+        if (phone) phone.value = client.phone || '';
         if (service) service.value = convertServiceToSelect(client);
         if (startDate) startDate.value = client.program_start_date || '';
         if (programDuration) programDuration.value = client.program_duration_weeks || '';
@@ -284,6 +286,7 @@ export function setupClientFormHandlers(onAfterSave) {
             const firstName = document.getElementById('firstName');
             const lastName = document.getElementById('lastName');
             const email = document.getElementById('email');
+            const phone = document.getElementById('phone');
             const service = document.getElementById('service');
             const startDate = document.getElementById('startDate');
             const programDuration = document.getElementById('programDuration');
@@ -296,6 +299,7 @@ export function setupClientFormHandlers(onAfterSave) {
                 first_name: firstName.value.trim(),
                 last_name: lastName.value.trim(),
                 email: email.value.trim(),
+                phone: phone.value.trim(),
                 service_type: tipo,
                 service_price: prezzo,
                 program_start_date: startDate.value,

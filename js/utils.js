@@ -14,11 +14,16 @@ export function formatServiceFinances(c) {
 
 export function calculateWeeksRemaining(client) {
     if (!client.program_start_date || !client.program_duration_weeks) return null;
-
+    
     const start = new Date(client.program_start_date);
     const now = new Date();
-    const diffWeeks = Math.floor((now - start) / (1000 * 60 * 60 * 24 * 7));
-
+    
+    const diffMs = now - start;
+    
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+    
+    const diffWeeks = Math.ceil(diffDays / 7);
+    
     return client.program_duration_weeks - diffWeeks;
 }
 
@@ -26,36 +31,39 @@ export function getProgramText(client) {
     if (!client.program_start_date || !client.program_duration_weeks) {
         return '—';
     }
-
+    
     const weeksRemaining = calculateWeeksRemaining(client);
+    
     if (weeksRemaining === null || weeksRemaining <= 0) {
         return 'PERIODO CONCLUSO';
     }
-
+    
     return `${weeksRemaining} settimane rimanenti`;
 }
 
 export function getPaymentInfo(client) {
     const dueStr = client.next_payment_due_date;
-
+    
     if (!client.last_payment_date) {
         return { text: 'Da Pagare', status: 'unknown' };
     }
-
+    
     if (!dueStr) {
         return { text: 'Da Pagare', status: 'unknown' };
     }
-
+    
     const now = new Date();
     const due = new Date(dueStr);
     const diffDays = Math.floor((due - now) / (1000 * 60 * 60 * 24));
-
+    
     if (diffDays >= 5) {
         return { text: 'In Regola', status: 'ok' };
     }
+    
     if (diffDays >= 0) {
         return { text: 'Da Pagare', status: 'due_soon' };
     }
+
     return { text: 'Scaduto', status: 'late' };
 }
 
@@ -95,12 +103,10 @@ export function formatMonthShort(dateStr) {
     if (!dateStr) return 'Nessun check registrato';
     const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return 'Nessun check registrato';
-
     const months = [
         'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
         'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
     ];
-
     const day = String(d.getDate()).padStart(2, '0');
     const monthName = months[d.getMonth()];
     const year = d.getFullYear();
@@ -112,12 +118,10 @@ export function formatNextPayment(dateStr) {
     if (!dateStr) return '—';
     const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return '—';
-
     const months = [
         'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
         'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
     ];
-
     const day = String(d.getDate()).padStart(2, '0');
     const monthName = months[d.getMonth()];
     const year = d.getFullYear();

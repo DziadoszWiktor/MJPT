@@ -19,11 +19,13 @@ function renderCurrentSection() {
 function showDashboardLoader() {
     const loader = document.getElementById('dashboardLoader');
     if (loader) loader.classList.add('active');
+    document.body.classList.add('dashboard-loading');
 }
 
 function hideDashboardLoader() {
     const loader = document.getElementById('dashboardLoader');
     if (loader) loader.classList.remove('active');
+    document.body.classList.remove('dashboard-loading');
 }
 
 async function refreshAll() {

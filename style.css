@@ -283,6 +283,11 @@ body {
     gap: 1.5rem;
 }
 
+body.dashboard-loading #clientGrid,
+body.dashboard-loading #emptyState {
+    display: none !important;
+}
+
 .client-tile {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);

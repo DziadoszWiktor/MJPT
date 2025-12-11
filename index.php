@@ -274,6 +274,9 @@ require __DIR__ . '/auth.php';
                 <div id="clientChecksContainer" class="client-checks-container" style="margin-top: 50px;">
                     <!-- Check history on edit -->
                 </div>
+                <div id="clientPaymentsContainer" class="client-checks-container" style="margin-top: 30px;">
+                    <!-- Payment history on edit -->
+                </div>
             </form>
         </div>
     </div>

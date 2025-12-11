@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS client_payments;
 DROP TABLE IF EXISTS client_checks;
 DROP TABLE IF EXISTS clients;
 
@@ -27,6 +28,17 @@ CREATE TABLE client_checks (
     check_date DATE NOT NULL,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_client_checks_client
+        FOREIGN KEY (client_id) REFERENCES clients(id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE client_payments (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    client_id INT UNSIGNED NOT NULL,
+    payment_date DATE NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_client_payments_client
         FOREIGN KEY (client_id) REFERENCES clients(id)
         ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

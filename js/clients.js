@@ -9,7 +9,6 @@ export function renderClientList() {
     if (!list) return;
 
     const clients = getClients();
-    
     if (!clients.length) {
         list.innerHTML = '<p>Nessun cliente registrato.</p>';
         return;
@@ -33,7 +32,6 @@ export function renderClientList() {
                     >
                         <span class="btn-dots">•••</span>
                     </button>
-
                     <button class="btn-icon delete-btn" data-id="${c.id}" aria-label="Elimina cliente">
                         <svg xmlns="http://www.w3.org/2000/svg"
                             width="26" height="26" viewBox="0 0 24 24">
@@ -78,7 +76,6 @@ async function loadClientChecks(clientId) {
         const res = await fetch(
             `api/Api.php?action=client_checks&client_id=${encodeURIComponent(clientId)}`
         );
-
         if (!res.ok) {
             container.innerHTML = '<p class="client-checks-error">Errore nel caricamento dei check.</p>';
             return;
@@ -108,7 +105,6 @@ async function loadClientChecks(clientId) {
             }
 
             d.setHours(d.getHours() + 1);
-
             const day = String(d.getDate()).padStart(2, '0');
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const year = d.getFullYear();
@@ -157,11 +153,13 @@ async function loadClientChecks(clientId) {
                 </table>
             </div>
         `;
+
         const table = container.querySelector('.client-checks-table');
         if (table) {
             table.addEventListener('click', async (ev) => {
                 const btn = ev.target.closest('.delete-check-btn');
                 if (!btn) return;
+
                 ev.preventDefault();
                 ev.stopPropagation();
 
@@ -195,9 +193,137 @@ async function loadClientChecks(clientId) {
     }
 }
 
+async function loadClientPayments(clientId) {
+    const container = document.getElementById('clientPaymentsContainer');
+    if (!container) return;
+
+    container.innerHTML = '<p class="client-checks-loading">Caricamento storico pagamenti...</p>';
+
+    try {
+        const res = await fetch(
+            `api/Api.php?action=client_payments&client_id=${encodeURIComponent(clientId)}`
+        );
+        if (!res.ok) {
+            container.innerHTML = '<p class="client-checks-error">Errore nel caricamento dei pagamenti.</p>';
+            return;
+        }
+
+        const json = await res.json();
+        const payload = json.data || json;
+        const payments = payload.payments || [];
+
+        if (!payments.length) {
+            container.innerHTML = `
+                <div class="client-checks-block">
+                    <h4>Storico pagamenti</h4>
+                    <p class="client-checks-empty">Nessun pagamento registrato</p>
+                </div>
+            `;
+            return;
+        }
+
+        const formatPaymentText = (p) => {
+            const src = p.created_at || p.payment_date;
+            if (!src) return 'Pagamento ricevuto';
+
+            const d = new Date(String(src).replace(' ', 'T'));
+            if (Number.isNaN(d.getTime())) {
+                return `${src}`;
+            }
+
+            d.setHours(d.getHours() + 1);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+
+            return `${day}.${month}.${year} ${hours}:${minutes}`;
+        };
+
+        const rowsHtml = payments.map(p => `
+            <tr>
+                <td>${formatPaymentText(p)}</td>
+                <td class="client-checks-actions">
+                    <button type="button" class="btn-icon-small delete-payment-btn"
+                            data-payment-id="${p.id}"
+                            aria-label="Elimina pagamento">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            width="20" height="20" viewBox="0 0 24 24">
+                            <g fill="none" stroke="#ffffff" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 7h16" />
+                                <path d="M10 11v6" />
+                                <path d="M14 11v6" />
+                                <path d="M6 7l1 11a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-11" />
+                                <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                            </g>
+                        </svg>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+
+        container.innerHTML = `
+            <div class="client-checks-block">
+                <h4>Storico pagamenti</h4>
+                <table class="client-checks-table">
+                    <thead>
+                        <tr>
+                            <th>Pagamento ricevuto in data</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        const table = container.querySelector('.client-checks-table');
+        if (table) {
+            table.addEventListener('click', async (ev) => {
+                const btn = ev.target.closest('.delete-payment-btn');
+                if (!btn) return;
+
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                const paymentId = btn.dataset.paymentId;
+                if (!paymentId) return;
+
+                try {
+                    const resp = await fetch('api/Api.php?action=delete_client_payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: paymentId })
+                    });
+
+                    if (!resp.ok) {
+                        alert('Errore durante l\'eliminazione del pagamento.');
+                        return;
+                    }
+
+                    await loadClientPayments(clientId);
+                } catch (e) {
+                    console.error(e);
+                    alert('Errore durante l\'eliminazione del pagamento.');
+                }
+            }, { once: true });
+        }
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = '<p class="client-checks-error">Errore nel caricamento dei pagamenti.</p>';
+    }
+}
+
 function openClientModal(client = null) {
     const modal = document.getElementById('clientModal');
     if (!modal) return;
+
     modal.style.display = 'flex';
 
     const title = document.getElementById('modalTitle');
@@ -211,6 +337,7 @@ function openClientModal(client = null) {
     const programDuration = document.getElementById('programDuration');
     const notes = document.getElementById('notes');
     const checksContainer = document.getElementById('clientChecksContainer');
+    const paymentsContainer = document.getElementById('clientPaymentsContainer');
 
     if (client) {
         if (title) title.innerText = 'Modifica Cliente';
@@ -227,14 +354,20 @@ function openClientModal(client = null) {
         if (checksContainer) {
             loadClientChecks(client.id);
         }
+
+        if (paymentsContainer) {
+            loadClientPayments(client.id);
+        }
     } else {
         if (title) title.innerText = 'Aggiungi Cliente';
         const form = document.getElementById('clientForm');
         if (form) form.reset();
         if (idInput) idInput.value = '';
-
         if (checksContainer) {
             checksContainer.innerHTML = '';
+        }
+        if (paymentsContainer) {
+            paymentsContainer.innerHTML = '';
         }
     }
 }
@@ -250,6 +383,7 @@ function openDeleteModal(client) {
     if (!modal) return;
 
     deleteCandidateId = client.id;
+
     if (nameEl) {
         nameEl.textContent = `${client.first_name} ${client.last_name}`;
     }
@@ -323,7 +457,6 @@ export function setupClientListHandlers(onAfterChange) {
         const editBtn = e.target.closest('.edit-btn');
         const deleteBtn = e.target.closest('.delete-btn');
 
-        // EDIT
         if (editBtn) {
             const id = editBtn.dataset.id;
             const clients = getClients();
@@ -332,7 +465,6 @@ export function setupClientListHandlers(onAfterChange) {
             return;
         }
 
-        // DELETE
         if (deleteBtn) {
             const id = deleteBtn.dataset.id;
             const clients = getClients();

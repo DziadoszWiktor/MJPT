@@ -17,13 +17,13 @@ function renderCurrentSection() {
 }
 
 function showDashboardLoader() {
-  const loader = document.getElementById('dashboardLoader');
-  if (loader) loader.classList.add('active');
+    const loader = document.getElementById('dashboardLoader');
+    if (loader) loader.classList.add('active');
 }
 
 function hideDashboardLoader() {
-  const loader = document.getElementById('dashboardLoader');
-  if (loader) loader.classList.remove('active');
+    const loader = document.getElementById('dashboardLoader');
+    if (loader) loader.classList.remove('active');
 }
 
 async function refreshAll() {
@@ -40,8 +40,12 @@ async function refreshAll() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    setupNav(() => {
-        renderCurrentSection();
+    setupNav((target) => {
+        if (target === 'dashboard') {
+            refreshAll();
+        } else {
+            renderCurrentSection();
+        }
     });
     setupSearch();
     setupClientFormHandlers(refreshAll);

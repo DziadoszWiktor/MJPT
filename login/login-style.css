@@ -506,3 +506,9 @@ body {
     linear-gradient(to top, rgba(15, 23, 42, 0.88), transparent);
 }
 
+@media (max-width: 768px), (prefers-reduced-motion: reduce) {
+  .bg-video { display: none; }
+  .bg-video-wrapper {
+    background: url("../img/bg-poster.jpg") center/cover no-repeat;
+  }
+}

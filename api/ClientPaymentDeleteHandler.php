@@ -39,6 +39,10 @@ class ClientPaymentDeleteHandler
 
             $clientId = (int)$row['client_id'];
 
+            $clientStmt = $this->pdo->prepare("SELECT * FROM clients WHERE id = :id");
+            $clientStmt->execute([':id' => $clientId]);
+            $client = $clientStmt->fetch(PDO::FETCH_ASSOC);
+
             $del = $this->pdo->prepare("DELETE FROM client_payments WHERE id = :id");
             $del->execute([':id' => $paymentId]);
 
@@ -52,13 +56,30 @@ class ClientPaymentDeleteHandler
 
             $last = $row2 && $row2['last_payment_date'] ? $row2['last_payment_date'] : null;
 
+            $nextDue = null;
+            if ($last !== null) {
+                $lastObj = new DateTimeImmutable($last);
+                $serviceType = $client['service_type'];
+                $interval = ($serviceType === 'TRIMESTRALE') ? '+3 months' : '+1 month';
+                $nextDue = $lastObj->modify($interval)->format('Y-m-d');
+            } else {
+                if ($client['program_start_date']) {
+                    $startObj = new DateTimeImmutable($client['program_start_date']);
+                    $serviceType = $client['service_type'];
+                    $interval = ($serviceType === 'TRIMESTRALE') ? '+3 months' : '+1 month';
+                    $nextDue = $startObj->modify($interval)->format('Y-m-d');
+                }
+            }
+
             $update = $this->pdo->prepare("
                 UPDATE clients
-                SET last_payment_date = :last
+                SET last_payment_date = :last,
+                    next_payment_due_date = :next
                 WHERE id = :client_id
             ");
             $update->execute([
                 ':last'      => $last,
+                ':next'      => $nextDue,
                 ':client_id' => $clientId,
             ]);
 

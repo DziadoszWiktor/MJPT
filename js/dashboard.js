@@ -43,7 +43,6 @@ export function renderDashboard() {
                         <div class="client-email">${client.email || ''}</div>
                     </div>
                 </div>
-
                 <div class="client-body">
                     <div class="client-info">
                         <div class="info-row">
@@ -58,22 +57,18 @@ export function renderDashboard() {
                             <span class="info-label">Ultimo check</span>
                             <span class="info-value">${lastCheckMonth}</span>
                         </div>
-
                         <div class="info-row">
                             <span class="info-label">Prossimo pagamento entro</span>
                             <span class="info-value">${nextPaymentFormatted}</span>
                         </div>
                     </div>
-
                     <div class="client-badges">
                         <span class="badge ${Number(client.is_active) === 1 ? 'badge-success' : 'badge-danger'}">
                             ${Number(client.is_active) === 1 ? 'Attivo' : 'Non attivo'}
                         </span>
-
                         <span class="badge ${paymentBadgeClass}">
                             ${payment.text}
                         </span>
-
                         <span class="badge ${checkBadgeClass}">
                             ${checkStatus.text}
                         </span>
@@ -100,8 +95,11 @@ export function setupDashboardQuickActions(onAfterQuickAction) {
             type = 'toggle_active';
         }
 
-        if (text.includes('da pagare') || text.includes('scaduto') || text.includes('regola')) {
+        if (text.includes('da pagare') || text.includes('scaduto')) {
             type = 'mark_payment_done';
+        } else if (text.includes('regola')) {
+            console.log('Cliente già in regola - azione bloccata');
+            return;
         }
 
         if (text.includes('check da fare')) {

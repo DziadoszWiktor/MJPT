@@ -38,6 +38,21 @@ class ClientQuickActionHandler
 
             case 'mark_payment_done':
                 $today = date('Y-m-d');
+                $dueStr = $client['next_payment_due_date'];
+                if ($client['last_payment_date'] && $dueStr) {
+                    $now = new DateTime();
+                    $due = new DateTime($dueStr);
+                    $diffDays = (int)floor(($due->getTimestamp() - $now->getTimestamp()) / 86400);
+                    
+                    if ($diffDays >= 5) {
+                        JsonResponse::success([
+                            'status' => 'already_paid',
+                            'message' => 'Il cliente è già in regola con i pagamenti.'
+                        ]);
+                        return;
+                    }
+                }
+
                 $serviceType = $client['service_type'];
                 $currentDue = $client['next_payment_due_date'];
 

@@ -15,7 +15,6 @@ const passwordInput   = document.getElementById('password');
 const loginForm       = document.getElementById('loginForm');
 const submitButton    = document.getElementById('submitButton');
 const forgotPassword  = document.getElementById('forgotPassword');
-const forgotMessage   = document.getElementById('forgotMessage');
 
 const imageSide       = document.getElementById('imageSide');
 const sideImage       = document.getElementById('sideImage');
@@ -28,17 +27,71 @@ const energyWaves     = document.getElementById('energyWaves');
 const formTitle       = document.getElementById('formTitle');
 const usernameLabel   = document.getElementById('usernameLabel');
 const passwordLabel   = document.getElementById('passwordLabel');
+const formError       = document.getElementById('formError');
 
 let isSubmitting = false;
 
-/* ---------- PARALLAX ---------- */
+/* ---------- ENERGY WAVES STATE ---------- */
+function setWavesState(state) {
+    if (!energyWaves) return;
+
+    energyWaves.classList.remove('success', 'error');
+
+    if (state === 'success') {
+        energyWaves.classList.add('visible', 'success');
+        return;
+    }
+
+    if (state === 'error') {
+        energyWaves.classList.add('visible', 'error');
+        return;
+    }
+
+    energyWaves.classList.remove('visible');
+}
+
+/* ---------- ERROR UX ---------- */
+function clearError() {
+    if (formError) {
+        formError.textContent = '';
+        formError.classList.remove('visible');
+    }
+    usernameInput.classList.remove('error');
+    passwordInput.classList.remove('error');
+    loginForm.classList.remove('shake');
+
+    setWavesState(null);
+}
+
+function showError(message) {
+    if (formError) {
+        formError.textContent = message;
+        formError.classList.add('visible');
+    }
+    usernameInput.classList.add('error');
+    passwordInput.classList.add('error');
+
+    setWavesState('error');
+
+    loginForm.classList.remove('shake');
+
+    void loginForm.offsetWidth;
+    loginForm.classList.add('shake');
+}
+
+usernameInput.addEventListener('input', clearError);
+passwordInput.addEventListener('input', clearError);
+
+/* ---------- PARALLAX (desktop only feels best) ---------- */
 if (imageSide) {
     imageSide.addEventListener('mousemove', (e) => {
+        if (window.matchMedia('(max-width: 768px)').matches) return;
+
         const rect = imageSide.getBoundingClientRect();
-        const relX = (e.clientX - rect.left) / rect.width - 0.5;  // -0.5 .. 0.5
+        const relX = (e.clientX - rect.left) / rect.width - 0.5;
         const relY = (e.clientY - rect.top) / rect.height - 0.5;
 
-        const moveX = relX * 18; // px
+        const moveX = relX * 18;
         const moveY = relY * 12;
 
         imageText.style.transform = `translate3d(${moveX * 0.8}px, ${moveY * 0.8}px, 0)`;
@@ -54,6 +107,8 @@ if (imageSide) {
 }
 
 usernameInput.addEventListener('focus', () => {
+    clearError();
+
     sideImage.classList.add('focus-login');
     sideImage.classList.remove('focus-password', 'submitting');
 
@@ -80,6 +135,8 @@ usernameInput.addEventListener('blur', () => {
 });
 
 passwordInput.addEventListener('focus', () => {
+    clearError();
+
     sideImage.classList.add('focus-password');
     sideImage.classList.remove('focus-login', 'submitting');
 
@@ -108,6 +165,8 @@ passwordInput.addEventListener('blur', () => {
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    clearError();
+
     if (isSubmitting) return;
     isSubmitting = true;
 
@@ -121,6 +180,8 @@ loginForm.addEventListener('submit', async (e) => {
     overlay.classList.remove('focus-login', 'focus-password');
 
     particles.classList.remove('visible');
+
+    setWavesState(null);
     energyWaves.classList.add('visible');
 
     imageTitle.classList.add('submitting');
@@ -141,32 +202,44 @@ loginForm.addEventListener('submit', async (e) => {
         const data = await res.json();
 
         if (data.status === 'ok') {
+            setWavesState('success');
             window.location.href = '/index.php';
             return;
         }
 
-        imageSubtitle.textContent = 'Credenziali non valide';
+        // INVALID LOGIN
+        imageSubtitle.textContent = '❌ Credenziali non valide';
+        imageSide.classList.add('has-error');
         imageTitle.classList.remove('submitting');
         imageTitle.classList.add('focus-password');
+
+        showError('Credenziali non valide. Controlla username e password.');
     } catch (err) {
         console.error(err);
         imageSubtitle.textContent = '⚠️ Errore di connessione, riprova';
+        showError('Errore di connessione. Riprova tra qualche secondo.');
     } finally {
         isSubmitting = false;
         submitButton.classList.remove('submitting');
         submitButton.textContent = 'Accedi';
         submitButton.disabled = false;
-        energyWaves.classList.remove('visible');
+
+        if (!energyWaves.classList.contains('error') && !energyWaves.classList.contains('success')) {
+            energyWaves.classList.remove('visible');
+        }
+
+        sideImage.classList.remove('submitting');
+        overlay.classList.remove('submitting');
+        imageTitle.classList.remove('submitting');
     }
 });
 
 function resetAnimations() {
     sideImage.classList.remove('focus-login', 'focus-password', 'submitting');
-
     overlay.classList.remove('focus-login', 'focus-password', 'submitting');
 
     particles.classList.remove('visible');
-    energyWaves.classList.remove('visible');
+    setWavesState(null);
 
     imageText.style.transform = '';
     particles.style.transform = '';

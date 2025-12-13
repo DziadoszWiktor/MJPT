@@ -22,8 +22,9 @@ require $dir . '/ClientDeleteHandler.php';
 require $dir . '/ClientQuickActionHandler.php';
 require $dir . '/ClientChecksHandler.php';
 require $dir . '/ClientCheckDeleteHandler.php';
-require $dir . '/ClientPaymentsHandler.php';        
-require $dir . '/ClientPaymentDeleteHandler.php';     
+require $dir . '/ClientPaymentsHandler.php';
+require $dir . '/ClientPaymentDeleteHandler.php';
+require $dir . '/ExportHandler.php';                
 require $dir . '/FallbackHandler.php';
 
 $config = require $dir . '/config.local.php';
@@ -81,12 +82,16 @@ switch ($action) {
         (new ClientCheckDeleteHandler($pdo))->handle();
         break;
 
-    case 'client_payments':                            
+    case 'client_payments':                          
         (new ClientPaymentsHandler($pdo))->handle();
         break;
 
-    case 'delete_client_payment':                      
+    case 'delete_client_payment':
         (new ClientPaymentDeleteHandler($pdo))->handle();
+        break;
+
+    case 'export_data':                               
+        (new ExportHandler($pdo))->handle();
         break;
 
     default:

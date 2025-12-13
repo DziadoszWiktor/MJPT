@@ -74,46 +74,207 @@ export function setupExport() {
     const btn = document.getElementById('exportDataBtn');
     if (!btn) return;
 
-    btn.addEventListener('click', () => {
-        const clients = getClients();
+    btn.addEventListener('click', async () => {
+        try {
+            const res = await fetch('api/Api.php?action=export_data');
+            if (!res.ok) {
+                alert('Errore durante il caricamento dei dati.');
+                return;
+            }
 
-        if (!clients.length) {
-            alert('Nessun dato da esportare.');
-            return;
+            const json = await res.json();
+            const data = json.data || json;
+
+            const clients = data.clients || [];
+            const checksByClient = data.checks_by_client || {};
+            const paymentsByClient = data.payments_by_client || {};
+
+            if (!clients.length) {
+                alert('Nessun dato da esportare.');
+                return;
+            }
+
+            if (typeof XLSX === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                script.onload = () => generateExcel(clients, checksByClient, paymentsByClient);
+                document.head.appendChild(script);
+            } else {
+                generateExcel(clients, checksByClient, paymentsByClient);
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Errore durante l\'esportazione dei dati.');
         }
+    });
+}
 
-        const rows = [];
-        rows.push([
-            'ID', 'Nome', 'Cognome', 'Email',
-            'Tipo Servizio', 'Prezzo', 'Data Inizio', 'Durata (settimane)', 'Note'
+function generateExcel(clients, checksByClient, paymentsByClient) {
+    const wb = XLSX.utils.book_new();
+    const clientsData = [
+        [
+            'ID', 'Nome', 'Cognome', 'Email', 'Telefono',
+            'Tipo Servizio', 'Prezzo', 'Data Inizio', 'Durata (settimane)',
+            'Attivo', 'Ultima Paga', 'Prossima Paga', 'Ultimo Check',
+            'Note', 'Data Creazione'
+        ]
+    ];
+
+    clients.forEach(c => {
+        clientsData.push([
+            c.id,
+            c.first_name,
+            c.last_name,
+            c.email || '',
+            c.phone || '',
+            c.service_type,
+            parseFloat(c.service_price),
+            c.program_start_date || '',
+            c.program_duration_weeks || '',
+            c.is_active == 1 ? 'Sì' : 'No',
+            c.last_payment_date || '',
+            c.next_payment_due_date || '',
+            c.last_check_date || '',
+            (c.notes || '').replace(/\r?\n/g, ' '),
+            c.created_at || ''
         ]);
+    });
 
-        clients.forEach(c => {
-            rows.push([
+    const wsClients = XLSX.utils.aoa_to_sheet(clientsData);
+
+    wsClients['!cols'] = [
+        { wch: 5 },  
+        { wch: 15 }, 
+        { wch: 15 }, 
+        { wch: 25 }, 
+        { wch: 15 }, 
+        { wch: 12 }, 
+        { wch: 10 }, 
+        { wch: 12 }, 
+        { wch: 10 }, 
+        { wch: 8 },
+        { wch: 12 },
+        { wch: 12 }, 
+        { wch: 12 }, 
+        { wch: 30 }, 
+        { wch: 18 }
+    ];
+
+    XLSX.utils.book_append_sheet(wb, wsClients, 'Clienti');
+
+    const paymentsData = [
+        ['Cliente ID', 'Nome', 'Cognome', 'Data Pagamento', 'Importo', 'Registrato il']
+    ];
+
+    clients.forEach(c => {
+        const payments = paymentsByClient[c.id] || [];
+        if (payments.length === 0) {
+            paymentsData.push([
                 c.id,
                 c.first_name,
                 c.last_name,
-                c.email || '',
-                c.service_type,
-                c.service_price,
-                c.program_start_date || '',
-                c.program_duration_weeks || '',
-                (c.notes || '').replace(/\r?\n/g, ' ')
+                'Nessun pagamento',
+                '',
+                ''
             ]);
-        });
-
-        const csv = rows.map(r =>
-            r.map(x => `"${String(x).replace(/"/g, '""')}"`).join(',')
-        ).join('\n');
-
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'pt-manager-clients.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        } else {
+            payments.forEach(p => {
+                paymentsData.push([
+                    c.id,
+                    c.first_name,
+                    c.last_name,
+                    p.payment_date || '',
+                    parseFloat(p.amount),
+                    p.created_at || ''
+                ]);
+            });
+        }
     });
+
+    const wsPayments = XLSX.utils.aoa_to_sheet(paymentsData);
+    wsPayments['!cols'] = [
+        { wch: 10 }, 
+        { wch: 15 }, 
+        { wch: 15 }, 
+        { wch: 15 }, 
+        { wch: 10 },
+        { wch: 18 }
+    ];
+
+    XLSX.utils.book_append_sheet(wb, wsPayments, 'Storico Pagamenti');
+
+    const checksData = [
+        ['Cliente ID', 'Nome', 'Cognome', 'Data Check', 'Registrato il']
+    ];
+
+    clients.forEach(c => {
+        const checks = checksByClient[c.id] || [];
+        if (checks.length === 0) {
+            checksData.push([
+                c.id,
+                c.first_name,
+                c.last_name,
+                'Nessun check',
+                ''
+            ]);
+        } else {
+            checks.forEach(ch => {
+                checksData.push([
+                    c.id,
+                    c.first_name,
+                    c.last_name,
+                    ch.check_date || '',
+                    ch.created_at || ''
+                ]);
+            });
+        }
+    });
+
+    const wsChecks = XLSX.utils.aoa_to_sheet(checksData);
+    wsChecks['!cols'] = [
+        { wch: 10 }, 
+        { wch: 15 }, 
+        { wch: 15 },
+        { wch: 15 }, 
+        { wch: 18 }
+    ];
+
+    XLSX.utils.book_append_sheet(wb, wsChecks, 'Storico Check');
+
+    const activeClients = clients.filter(c => c.is_active == 1);
+    let totalYear = 0;
+    let totalMonthly = 0;
+
+    activeClients.forEach(c => {
+        const annual = (c.service_type === 'TRIMESTRALE')
+            ? parseFloat(c.service_price) * 4
+            : parseFloat(c.service_price) * 12;
+        totalYear += annual;
+        totalMonthly += parseFloat(c.service_price);
+    });
+
+    const statsData = [
+        ['Statistica', 'Valore'],
+        ['Clienti Totali', clients.length],
+        ['Clienti Attivi', activeClients.length],
+        ['Clienti Non Attivi', clients.length - activeClients.length],
+        ['Guadagno Annuale Totale', `€${totalYear.toFixed(2)}`],
+        ['Entrate Mensili Medie', `€${totalMonthly.toFixed(2)}`],
+        ['Limite Legale', '€5000.00'],
+        ['% del Limite', `${((totalYear / 5000) * 100).toFixed(1)}%`]
+    ];
+
+    const wsStats = XLSX.utils.aoa_to_sheet(statsData);
+    wsStats['!cols'] = [
+        { wch: 30 }, 
+        { wch: 20 }
+    ];
+
+    XLSX.utils.book_append_sheet(wb, wsStats, 'Statistiche');
+
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    const filename = `PT-Manager-Export-${dateStr}.xlsx`;
+
+    XLSX.writeFile(wb, filename);
 }
